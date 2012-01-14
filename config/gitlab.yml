@@ -3,15 +3,15 @@
 # Email used for notification
 # about new issues, comments
 email:
-  from: notify@gitlabhq.com
-  host: gitlabhq.com
+  from: git@git.freezzo.com
+  host: git.freezzo.com
 
 # Git Hosting congiguration
 git_host:
   system: gitolite
-  admin_uri: git@localhost:gitolite-admin
+  admin_uri: git@git.freezzo.com:gitolite-admin
   base_path: /home/git/repositories/
-  host: localhost
+  host: git.freezzo.com
   git_user: git
   # port: 22
 
@@ -22,4 +22,4 @@ git:
   # This value can be increased if you have a very large commits
   git_max_size: 5242880 # 5.megabytes
   # Git timeout to read commit, in seconds
-  git_timeout: 10
+  git_timeout: 20

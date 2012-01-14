@@ -9,7 +9,7 @@ gem "kaminari"
 gem "haml", "3.1.4"
 gem "haml-rails"
 gem "jquery-rails"
-gem "grit", :git => "https://github.com/gitlabhq/grit.git"
+gem "grit"#, :git => "https://github.com/gitlabhq/grit.git"
 gem "gitolite", :git => "https://github.com/gitlabhq/gitolite-client.git"
 gem "carrierwave"
 gem "six"
@@ -58,4 +58,8 @@ group :test do
   gem "turn", :require => false
   gem "simplecov", :require => false
   gem "shoulda", "~> 3.0.0.beta2"
+end
+
+group :production do
+  gem "mysql"
 end
