@@ -14,6 +14,7 @@ class Project < ActiveRecord::Base
   has_many :users, :through => :users_projects
   has_many :notes, :dependent => :destroy
   has_many :snippets, :dependent => :destroy
+  has_many :deploy_keys, :dependent => :destroy, :foreign_key => "project_id", :class_name => "Key"
   has_many :web_hooks, :dependent => :destroy
 
   acts_as_taggable
@@ -199,7 +200,7 @@ class Project < ActiveRecord::Base
   def repository_readers
     keys = Key.joins({:user => :users_projects}).
       where("users_projects.project_id = ? AND users_projects.repo_access = ?", id, Repository::REPO_R)
-    keys.map(&:identifier)
+    keys.map(&:identifier) + deploy_keys.map(&:identifier)
   end
 
   def repository_writers
@@ -299,11 +300,11 @@ class Project < ActiveRecord::Base
     end[0...n]
   end
 
-  def updates_wo_repo(n=3)
+  def activities(n=3)
     [
       fresh_issues(n),
       fresh_merge_requests(n),
-      fresh_notes(n)
+      notes.inc_author_project.where("noteable_type is not null").order("created_at desc").first(n)
     ].compact.flatten.sort do |x, y|
       y.created_at <=> x.created_at
     end[0...n]
