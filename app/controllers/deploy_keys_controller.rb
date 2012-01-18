@@ -1,5 +1,5 @@
 class DeployKeysController < ApplicationController
-  respond_to :js, :html
+  respond_to :html
   layout "project"
   before_filter :project
 
@@ -27,9 +27,11 @@ class DeployKeysController < ApplicationController
 
   def create
     @key = @project.deploy_keys.new(params[:key])
-    @key.save
-
-    respond_with(@key)
+    if @key.save
+      redirect_to project_deploy_keys_path(@project)
+    else
+      render "new"
+    end
   end
 
   def destroy
