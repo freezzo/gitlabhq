@@ -1,19 +1,9 @@
 .main_links {
-  width:90px;
-  margin-right:40px;
+  width:130px;
   float:left;
-  background:#ddd;
-  @include round-borders-all(8px);
-  border-color:#ccc;
 
-  a {
-    position: relative;
+  a { 
     float:left;
-    padding: 3px 10px;
-
-    img { 
-      width: 22px;
-    }
   }
 }
 
@@ -88,7 +78,7 @@ body header {
     margin-right:30px;
     font-size:16px;
     font-weight:bold;
-    padding:5px 7px;
+    padding:8px;
     color:#333;
   }
 
@@ -110,7 +100,7 @@ body header {
       color: #666; 
       border: 1px solid #AAA;
       padding:  0 10px 0 30px;
-      background: white url('images.png') no-repeat 8px -42px; 
+      background: transparent url('images.png') no-repeat 8px -42px; 
       width: 160px;
       height:26px;
     }
@@ -131,12 +121,13 @@ body header {
   }
 
   .chzn-single { 
-    background:white;
+    background:transparent;
     -moz-border-radius: 4px;
     border-radius: 4px;
 
     div { 
-      background:white;
+      background:transparent;
+      border-left:none;
     }
 
     span { 
