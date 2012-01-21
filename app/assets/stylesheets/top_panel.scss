@@ -58,6 +58,7 @@ body header {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#EAEAEA'); /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#EAEAEA)); /* for webkit browsers */
   background: -moz-linear-gradient(top,  #FFFFFF,  #EAEAEA); /* for firefox 3.6+ */ 
+  background: -o-linear-gradient(top,  #FFFFFF,  #EAEAEA); /* for firefox 3.6+ */ 
   border-bottom: 1px solid #ccc; 
 
   height:50px;
@@ -139,8 +140,7 @@ body header {
 .rss-icon { 
   margin:0 15px;
   padding:3px;
-  border:1px solid #ccc;
+  border:1px solid #AAA;
   border-radius:3px;
   float:left;
-  background:#DDD;
 }

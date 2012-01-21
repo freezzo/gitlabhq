@@ -52,6 +52,10 @@ class Note < ActiveRecord::Base
     else 
       noteable
     end
+  # Temp fix to prevent app crash
+  # if note commit id doesnt exist
+  rescue 
+    nil
   end
 
   def line_file_id
@@ -84,5 +88,6 @@ end
 #  updated_at    :datetime
 #  project_id    :integer
 #  attachment    :string(255)
+#  line_code     :string(255)
 #
 
