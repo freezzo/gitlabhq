@@ -8,16 +8,27 @@ class RefsController < ApplicationController
 
   before_filter :ref
   before_filter :define_tree_vars, :only => [:tree, :blob]
+  before_filter :render_full_content
+
   layout "project"
 
   def switch 
-    new_path = if params[:destination] == "tree"
-                 tree_project_ref_path(@project, params[:ref]) 
-               else
-                 project_commits_path(@project, :ref => params[:ref])
-               end
+    respond_to do |format| 
+      format.html do 
+        new_path = if params[:destination] == "tree"
+                     tree_project_ref_path(@project, params[:ref]) 
+                   else
+                     project_commits_path(@project, :ref => params[:ref])
+                   end
 
-    redirect_to new_path
+        redirect_to new_path 
+      end
+      format.js do 
+        @ref = params[:ref]
+        define_tree_vars
+        render "tree"
+      end
+    end
   end
 
   #
@@ -37,7 +48,12 @@ class RefsController < ApplicationController
 
   def blob
     if @tree.is_blob?
-      send_data(@tree.data, :type => @tree.mime_type, :disposition => 'inline', :filename => @tree.name)
+      send_data(
+        @tree.data,
+        :type => @tree.text? ? "text/plain" : @tree.mime_type,
+        :disposition => 'inline',
+        :filename => @tree.name
+      )
     else
       head(404)
     end

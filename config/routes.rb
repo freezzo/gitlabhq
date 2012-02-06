@@ -4,8 +4,6 @@ Gitlab::Application.routes.draw do
   require 'resque/server'
   mount Resque::Server.new, at: '/info/resque'
 
-  get 'tags'=> 'tags#index'
-  get 'tags/:tag' => 'projects#index'
   get 'help' => 'help#index'
 
   namespace :admin do
@@ -41,7 +39,7 @@ Gitlab::Application.routes.draw do
   resources :projects, :constraints => { :id => /[^\/]+/ }, :only => [:new, :create, :index]
   resources :keys
 
-  devise_for :users
+  devise_for :users, :controllers => { :omniauth_callbacks => :omniauth_callbacks }
 
   resources :projects, :constraints => { :id => /[^\/]+/ }, :except => [:new, :create, :index], :path => "/" do
     member do
@@ -108,5 +106,5 @@ Gitlab::Application.routes.draw do
     end
     resources :notes, :only => [:create, :destroy]
   end
-  root :to => "dashboard#index"
+  root :to => "projects#index"
 end
