@@ -85,6 +85,8 @@ class ProjectsController < ApplicationController
   #
 
   def wall
+    return render_404 unless @project.wall_enabled
+
     @note = Note.new
     @notes = @project.common_notes.order("created_at DESC")
     @notes = @notes.fresh.limit(20)
@@ -96,6 +98,7 @@ class ProjectsController < ApplicationController
   end
 
   def graph
+    render_full_content
     @days_json, @commits_json = GraphCommit.to_graph(project)
   end
 

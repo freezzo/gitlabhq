@@ -1,13 +1,16 @@
 = render "project_head"
 - @activities.each do |update|
-  .alert-message.entry
+  .entry
     = link_to dashboard_feed_path(@project, update) do 
       - if update.kind_of? Note
         %p
           %strong
-            = update.target.class.name.titleize
-            = truncate update.target.id.to_s, :length => 10
-            commented
+            - if update.target
+              = update.target.class.name.titleize
+              = truncate update.target.id.to_s, :length => 10
+              commented
+            - else 
+              Project wall
           &ndash;
           = image_tag gravatar_icon(update.author_email), :class => "", :width => 16
           = truncate dashboard_feed_title(update), :length => 50
