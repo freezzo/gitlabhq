@@ -1,20 +1,12 @@
-!!!
-%html
-  %head
-    %meta{:charset => "utf-8"}
-    %title
-      GitLab
-    = favicon_link_tag 'favicon.ico'
-    = stylesheet_link_tag    "application"
-    = javascript_include_tag "application"
-    = csrf_meta_tags
+!!! 5
+%html{ :lang => "en"}
+  = render "layouts/head"
   %body.application
-    = render :partial => "layouts/flash"
-    = render :partial => "layouts/head_panel"
-    .container-fluid
-      .sidebar
-        = render :partial => "layouts/app_side"
+    = render "layouts/flash"
+    = render "layouts/head_panel", :title => "Dashboard"
+    .container
+      = render :partial => "layouts/app_menu"
       .content
         .row
-          .span10= yield
-          .span4= render "layouts/projects_side"
+          .span12= yield
+          .sidebar= render "layouts/projects_side"

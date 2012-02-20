@@ -7,14 +7,18 @@ Gitlab::Application.routes.draw do
   get 'help' => 'help#index'
 
   namespace :admin do
-    resources :users
+    resources :users do 
+      member do 
+        put :team_update
+      end
+    end
     resources :projects, :constraints => { :id => /[^\/]+/ } do 
       member do 
         get :team
         put :team_update
       end
     end
-    resources :team_members
+    resources :team_members, :only => [:edit, :update, :destroy]
     get 'emails', :to => 'mailer#preview'
     get 'mailer/preview_note'
     get 'mailer/preview_user_new'
@@ -46,7 +50,6 @@ Gitlab::Application.routes.draw do
       get "team"
       get "wall"
       get "graph"
-      get "info"
       get "files"
     end
 
@@ -54,6 +57,7 @@ Gitlab::Application.routes.draw do
       member do 
         get "branches"
         get "tags"
+        get "archive"
       end
     end
 

@@ -1,48 +1,26 @@
-@import "bootstrap";
-
-/** GITLAB colors **/
-$text_color:#222;
-$lite_text_color: #666; 
-$link_color:#111; 
-$active_link_color:#2FA0BB;
-$active_bg_color:#79C3E0;
-$active_bd_color: #2FA0BB;
-$border_color:#CCC;
-$lite_border_color:#EEE;
-$min_app_width:980px;
-$max_app_width:980px;
-$app_padding:20px;
-$bg_color: #FFF;
-$styled_border_color: #2FA0BB;
-$color: "#4BB8D2";
-$blue_link: "#2fa0bb";
-
-/** MIXINS **/
-@mixin round-borders-bottom($radius) {
-  border-top: 1px solid #eaeaea;
-  -moz-border-radius-bottomright: $radius;
-  -moz-border-radius-bottomleft: $radius;
-  border-bottom-right-radius: $radius;
-  border-bottom-left-radius: $radius;
-  -webkit-border-bottom-left-radius: $radius;
-  -webkit-border-bottom-right-radius: $radius;
+a {
+  color: $link_color;
+  &:hover { 
+    text-decoration:none; 
+    color: $style_color;
+  }
 }
 
-@mixin round-borders-top($radius) {
-  border-top: 1px solid #eaeaea;
-  -moz-border-radius-topright: $radius;
-  -moz-border-radius-topleft: $radius;
-  border-top-right-radius: $radius;
-  border-top-left-radius: $radius;
-  -webkit-border-top-left-radius: $radius;
-  -webkit-border-top-right-radius: $radius;
+.pills .active a {
+  background-color: #474D57;
 }
 
-@mixin round-borders-all($radius) {
-  border: 1px solid #eaeaea;
-  -moz-border-radius: $radius;
-  -webkit-border-radius: $radius;
-  border-radius: $radius;
+.label { 
+  background-color: #474D57;
+}
+
+.tabs > li > a, .pills > li > a {
+  color:$style_color;
+}
+
+.diff_file_header a,
+.file_stats a {
+  color:$style_color;
 }
 
 /** COLORS **/
@@ -93,37 +71,65 @@ $blue_link: "#2fa0bb";
 
 /** LAYOUT **/
 
-.container-fluid { 
-  min-width:$min_app_width;
-  max-width:$max_app_width;
-  margin:auto;
-  margin-top:51px;
+.container { 
+  width:$min_app_width;
+  margin-top:50px;
+  padding:$app_padding;
 }
 
-.container-fluid > .sidebar { 
-  width: 140px;
-  border-right: 1px solid $border_color;
+.container  .sidebar { 
+  width: 250px;
   height:100%;
   min-height:450px;
-
-  .fixed { 
-    position:fixed;
-  }
-
-  aside a {
-    display:block;
-    position:relative;
-    padding:15px 10px;
-    margin:10px 0 0 0;
-    font-size:13px;
-    font-weight:bold;
-    color:#444;
-  }
+  float:right;
 }
 
-.container-fluid > .content {
-  margin-left: 160px;
-  margin-top:20px;
+nav.main_menu { 
+  border-radius: 4px;
+  width: 100%;
+  margin: auto;
+  margin-top:30px;
+  margin-bottom:30px;
+  background:#f1f1f1;
+  border:1px solid #ccc;
+  height:38px;
+
+  background-image: -webkit-gradient(linear, 0 0, 0 30, color-stop(0.066, #f1f1f1), to(#dfdfdf));
+  background-image: -webkit-linear-gradient(#f1f1f1 6.6%, #dfdfdf);
+  background-image: -moz-linear-gradient(#f1f1f1 6.6%, #dfdfdf);
+  background-image: -o-linear-gradient(#f1f1f1 6.6%, #dfdfdf);
+
+
+  .label { 
+    background:$hover;
+    text-shadow:none;
+    color:$style_color;
+  }
+
+  a { 
+
+    font-weight:bold;
+    &:first-child{ 
+      -webkit-border-top-left-radius: 4px;
+      -webkit-border-bottom-left-radius: 4px;
+      -moz-border-radius-topleft: 4px;
+      -moz-border-radius-bottomleft: 4px;
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+    }
+    padding: 10px 25px;
+    display: inline-block;
+    color: $style_color;
+    border-right: 1px solid #ccc;
+    position: relative;
+    box-shadow: 1px 0 0 rgba(255, 255, 255, 0.1);
+    margin: 0;
+    float:left;
+    text-shadow:0 1px 1px white;
+    &.current { 
+      background:#DDD;
+    }
+  }
 }
 
 aside.projects,
@@ -159,31 +165,81 @@ img.lil_av {
 
 .wll { 
   background-color: #FFF;
-  margin-bottom: 10px;
-  padding: 5px;
+  padding: 10px 5px;
   min-height: 20px;
   border-bottom: 1px solid #eee;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  .author { color: #999; }
+  cursor:pointer;
+  &:hover { 
+    background:$hover;
+  }
   &:last-child { border:none }
-  p { padding-top:5px;}
+  p { padding-top:5px; margin:0; color:$style_color;}
+  .author { color: #999; }
+  p { 
+    color:$style_color;
+    margin-bottom: 0;
+    img { 
+      position:relative;
+      top:3px;
+    }
+  }
 }
 
+.visible_link,
 .author_link { 
-  color: $active_link_color;
+  color: $link_color;
+}
+.entry { 
+  position: relative;
+  padding: 7px 15px;
+  margin-bottom: 18px;
+  color: #404040;
+  filter:none;
+
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+
+  background:#F1F1F1;
+  border: 1px solid #ccc;
+
+
+  p { 
+    color:$style_color;
+    margin-bottom: 0;
+    img { 
+      position:relative;
+      top:3px;
+    }
+  }
 }
 
-@import "reset_bootstrap.scss";
-@import "top_panel.scss";
-@import "projects.css.scss";
-@import "commits.css.scss";
-@import "tree.scss";
-@import "issues.css.scss";
-@import "merge_requests.css.scss";
-@import "notes.css.scss";
-@import "login.scss";
+.widget { 
+  padding:20px;
+  margin-bottom:20px;
+}
 
-/** CODE HIGHTLIGHT **/
-@import "highlight.css.scss";
-@import "highlight.black.css.scss";
 
+.ui-box { 
+  margin-bottom: 40px;
+  @include round-borders-all(4px);
+  border-color:#ddd;
+
+  h5 { 
+    padding: 5px 10px;
+    background:#f5f5f5;
+    border-bottom: 1px solid #ccc;
+  }
+
+  li {
+    padding:10px;
+  }
+}

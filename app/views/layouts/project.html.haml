@@ -1,28 +1,16 @@
-!!!
-%html
-  %head
-    %meta{:charset => "utf-8"}
-    %title
-      GitLab
-      = " - #{@project.name}" if @project && !@project.new_record?
-    = favicon_link_tag 'favicon.ico'
-    = stylesheet_link_tag    "application"
-    = javascript_include_tag "application"
-    - if current_page?(tree_project_ref_path(@project, @project.root_ref)) || current_page?(project_commits_path(@project))
-      = auto_discovery_link_tag(:atom, project_commits_url(@project, :atom, :ref => @ref, :private_token => current_user.private_token), :title => "Recent commits to #{@project.name}:#{@ref}")
-    - if request.path == project_issues_path(@project)
-      = auto_discovery_link_tag(:atom, project_issues_url(@project, :atom, :private_token => current_user.private_token), :title => "#{@project.name} issues")
-    = csrf_meta_tags
+!!! 5
+%html{ :lang => "en"}
+  = render "layouts/head"
   %body.project
-    = render :partial => "layouts/flash"
-    = render :partial => "layouts/head_panel"
-    .container-fluid
-      .sidebar= render :partial => "layouts/project_side"
+    = render "layouts/flash"
+    = render "layouts/head_panel", :title => @project.name
+    .container
+      = render :partial => "layouts/project_menu"
       .content
         - if @full_content
           = yield
         - else
           .row
-            .span10= yield
-            .span4= render "layouts/project_side_right"
+            .span12= yield
+            .sidebar= render "layouts/project_side_right"
 

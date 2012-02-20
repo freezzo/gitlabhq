@@ -2,15 +2,13 @@
 %header.top_panel_holder
   .wrapper
     .top_panel_content
-      %div.main_links
+      %div.app_logo
         = link_to root_path, :class => "home", :title => "Home" do 
-          = image_tag "logo.png", :width => 100
+          = image_tag "logo_tr.png", :width => 50
+          %h1 GITLAB
 
-      - if project_layout
-        .project_name
-          = truncate @project.name, :length => 28
-        .git_url_wrapper
-          %input.git-url.text{:id => "", :name => "", :readonly => "", :type => "text", :value => @project.url_to_repo, :class => "one_click_select"}
+      %h1.project_name= title
+      .search= text_field_tag "search", nil, :placeholder => "Search", :class => "search-input"
 
 
       .account-box
@@ -20,3 +18,20 @@
           = link_to profile_path, :class => "username" do
             My profile
           = link_to 'Logout', destroy_user_session_path, :class => "logout", :method => :delete
+
+:javascript
+  $(function(){
+    $("#search").autocomplete({
+      source: #{raw search_autocomplete_source},
+      select: function(event, ui) { location.href = ui.item.url }
+    });
+
+    $(document).keypress(function(e) {
+      if( $(e.target).is(":input") ) return;
+        switch(e.which)  {
+        case 115:  focusSearch();
+        e.preventDefault();
+      }
+    });
+  });
+

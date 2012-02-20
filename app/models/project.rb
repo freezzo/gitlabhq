@@ -53,6 +53,7 @@ class Project < ActiveRecord::Base
   attr_protected :private_flag, :owner_id
 
   scope :public_only, where(:private_flag => false)
+  scope :without_user, lambda { |user|  where("id not in (:ids)", :ids => user.projects.map(&:id) ) }
 
   def self.active
     joins(:issues, :notes, :merge_requests).order("issues.created_at, notes.created_at, merge_requests.created_at DESC")
@@ -231,6 +232,10 @@ class Project < ActiveRecord::Base
 
   def allow_admin_for?(user)
     !users_projects.where(:user_id => user.id, :project_access => [PROJECT_RWA]).empty? || owner_id == user.id
+  end
+
+  def allow_pull_for?(user)
+    !users_projects.where(:user_id => user.id, :repo_access => [Repository::REPO_R, Repository::REPO_RW]).empty?
   end
 
   def root_ref 
