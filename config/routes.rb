@@ -5,6 +5,8 @@ Gitlab::Application.routes.draw do
   mount Resque::Server.new, at: '/info/resque'
 
   get 'help' => 'help#index'
+  get 'help/permissions' => 'help#permissions'
+  get 'help/workflow' => 'help#workflow'
 
   namespace :admin do
     resources :users do 
@@ -62,6 +64,7 @@ Gitlab::Application.routes.draw do
     end
 
     resources :deploy_keys
+    resources :protected_branches, :only => [:index, :create, :destroy]
 
     resources :refs, :only => [], :path => "/" do 
       collection do 
@@ -90,7 +93,6 @@ Gitlab::Application.routes.draw do
     resources :merge_requests do 
       member do 
         get :diffs
-        get :commits
       end
     end
     

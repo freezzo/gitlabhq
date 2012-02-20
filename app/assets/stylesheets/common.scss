@@ -6,8 +6,16 @@ a {
   }
 }
 
+.vlink { 
+  color: $link_color !important;
+}
+
+.pills a:hover { 
+  background-color:#ccc;
+}
+
 .pills .active a {
-  background-color: #474D57;
+  background-color: #aaa;
 }
 
 .label { 
@@ -27,6 +35,7 @@ a {
 .cgray { color:gray; }
 .cred { color:#D12F19; }
 .cgreen { color:#44aa22; }
+.cblack { color:#111; }
 
 /** COMMON STYLES **/
 .left {
@@ -73,12 +82,16 @@ a {
 
 .container { 
   width:$min_app_width;
-  margin-top:50px;
-  padding:$app_padding;
+  padding-top:0;
+  z-index:5;
+}
+
+.container .content { 
+  margin:0 $app_padding;
 }
 
 .container  .sidebar { 
-  width: 250px;
+  width: 200px;
   height:100%;
   min-height:450px;
   float:right;
@@ -86,19 +99,26 @@ a {
 
 nav.main_menu { 
   border-radius: 4px;
-  width: 100%;
   margin: auto;
-  margin-top:30px;
-  margin-bottom:30px;
-  background:#f1f1f1;
+  margin:30px $app_padding;
+  background:#eee;
   border:1px solid #ccc;
   height:38px;
 
-  background-image: -webkit-gradient(linear, 0 0, 0 30, color-stop(0.066, #f1f1f1), to(#dfdfdf));
-  background-image: -webkit-linear-gradient(#f1f1f1 6.6%, #dfdfdf);
-  background-image: -moz-linear-gradient(#f1f1f1 6.6%, #dfdfdf);
-  background-image: -o-linear-gradient(#f1f1f1 6.6%, #dfdfdf);
+  background-image: -webkit-gradient(linear, 0 0, 0 30, color-stop(0.066, #eee), to(#dfdfdf));
+  background-image: -webkit-linear-gradient(#eee 6.6%, #dfdfdf);
+  background-image: -moz-linear-gradient(#eee 6.6%, #dfdfdf);
+  background-image: -o-linear-gradient(#eee 6.6%, #dfdfdf);
 
+  -moz-box-shadow: 0 0 3px #ddd;
+  -webkit-box-shadow: 0 0 3px #ddd;
+  box-shadow: 0 0 3px #ddd;
+
+
+  .count { 
+    color:#bbb;
+    margin-left:3px;  
+  }
 
   .label { 
     background:$hover;
@@ -120,12 +140,22 @@ nav.main_menu {
     padding: 10px 25px;
     display: inline-block;
     color: $style_color;
-    border-right: 1px solid #ccc;
+    border-right: 1px solid #d5d5d5;
     position: relative;
     box-shadow: 1px 0 0 rgba(255, 255, 255, 0.1);
     margin: 0;
     float:left;
     text-shadow:0 1px 1px white;
+ 
+
+    &.home { 
+      padding:7px 35px;
+
+      img { 
+        position:relative;
+        top:4px;
+      }
+    }
     &.current { 
       background:#DDD;
     }
@@ -136,7 +166,6 @@ aside.projects,
 aside.project-side
 { 
   margin-left: 0;
-  padding-left: 20px;
 }
 
 img.avatar { 
@@ -177,7 +206,7 @@ img.lil_av {
   p { padding-top:5px; margin:0; color:$style_color;}
   .author { color: #999; }
   p { 
-    color:$style_color;
+    color:#222;
     margin-bottom: 0;
     img { 
       position:relative;
@@ -225,21 +254,95 @@ img.lil_av {
 .widget { 
   padding:20px;
   margin-bottom:20px;
+  background-image: -webkit-gradient(linear, 0 0, 0 30, color-stop(0.066, #fff), to(#f1f1f1));
+  background-image: -webkit-linear-gradient(#fff 6.6%, #f1f1f1);
+  background-image: -moz-linear-gradient(#fff 6.6%, #f1f1f1);
+  background-image: -o-linear-gradient(#fff 6.6%, #f1f1f1);
+  border: 1px solid #DDD;
+  border-radius: 5px;
+
+  .link_holder { 
+    background:#eee;
+    position:relative;
+    left:-20px;
+    top:20px;
+    padding:10px 20px;
+    width:100%;
+    border-top:1px solid #ccc;
+
+    a { 
+      font-size:14px;
+      color:#666;
+    }
+  }
 }
 
 
 .ui-box { 
+
   margin-bottom: 40px;
   @include round-borders-all(4px);
   border-color:#ddd;
 
-  h5 { 
-    padding: 5px 10px;
-    background:#f5f5f5;
-    border-bottom: 1px solid #ccc;
+  ul { 
+    margin:0;
   }
 
-  li {
-    padding:10px;
+  h5, .title { 
+    padding: 0 10px;
+    background:#f5f5f5;
+    background-image: -webkit-gradient(linear, 0 0, 0 26, color-stop(0.076, #fefefe), to(#F6F7F8));
+    background-image: -webkit-linear-gradient(#fefefe 7.6%, #F6F7F8);
+    background-image: -moz-linear-gradient(#fefefe 7.6%, #F6F7F8);
+    background-image: -o-linear-gradient(#fefefe 7.6%, #F6F7F8);
+    border-bottom: 1px solid #eee;
+    @include round-borders-top(4px);
+    border-top:none;
+
+    form { 
+      padding-top:16px;
+    }
   }
+
+
+  li, .wll {
+    padding:10px;
+    &:first-child { 
+      @include round-borders-top(4px);
+      border-top:none;
+    }
+
+    &:last-child { 
+      @include round-borders-bottom(4px);
+      border:none;
+    }
+  }
+
+}
+
+.help li { color:#111 } 
+
+.back_link { 
+  text-decoration:underline;
+  font-size:14px;
+  font-weight:bold;
+  padding:10px 0;
+  padding-bottom:0;
+}
+
+.info_link { 
+  margin-right:5px;
+  float:left;
+
+  img { 
+    width:20px;
+  }
+}
+
+.borders { 
+  border: 1px solid #ccc;
+}
+
+.well.padded {
+  padding:29px;
 }

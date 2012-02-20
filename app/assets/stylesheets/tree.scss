@@ -130,17 +130,28 @@ table.highlighttable .linenodiv pre {
   }
 }
 
-.breadcrumb a { 
-  color:$style_color;
-  font-weight:bold;
+.breadcrumb {
+  background:white;
+  border:none;
+
+  a { 
+    color:$link_color;
+    font-weight:bold;
+    font-size:13px;
+  }
 }
 
 #tree-slider { 
   td { 
     padding:7px;
+    border-color:#f1f1f1;
   }
 
   th { 
     background:#f5f5f5;
   }
+}
+
+.tree-commit-link { 
+  color:#333;
 }

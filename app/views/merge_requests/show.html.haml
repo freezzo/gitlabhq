@@ -19,12 +19,21 @@
       = link_to edit_project_merge_request_path(@project, @merge_request), :class => "btn small" do 
         Edit
 
+.back_link
+  = link_to project_merge_requests_path(@project) do 
+    &larr; To merge requests
+
+
 %hr
 - if @merge_request.closed
   .alert-message.error Closed
 - else 
-  .alert-message.success Open
+  .alert-message.success 
+    = link_to "#", :class => "info_link", :title => "How To Merge" do 
+      = image_tag "Info-UI.PNG"
+    Open
 
+= render "merge_requests/how_to_merge"
 
 %div.well
   %div
@@ -41,19 +50,18 @@
 
   %div= simple_format @merge_request.title
 
+= render "merge_requests/commits"
 
-.tabs
-  %li.active
-    = link_to "#notes", :class => "merge-notes-tab tab" do 
-      Notes
-  %li
-    = link_to "#commits", "data-url" => commits_project_merge_request_path(@project, @merge_request), :class => "merge-commits-tab tab" do 
-      Commits
-  %li
-    = link_to "#diffs", "data-url" => diffs_project_merge_request_path(@project, @merge_request), :class => "merge-diffs-tab tab" do
-      Diff
+- unless @commits.empty?
+  .tabs
+    %li.active
+      = link_to "#notes", :class => "merge-notes-tab tab" do 
+        Notes
+    %li
+      = link_to "#diffs", "data-url" => diffs_project_merge_request_path(@project, @merge_request), :class => "merge-diffs-tab tab" do
+        Diff
 
-  %img{:src => "/assets/ajax-loader-facebook.gif", :class => "dashboard-loader"}
+    %img{:src => "/assets/ajax-loader-facebook.gif", :class => "dashboard-loader"}
 
 .merge-request-notes
   .merge_request_notes= render "notes/notes"
@@ -61,7 +69,6 @@
     %center= image_tag "ajax-loader.gif"
   .clear
 
-.merge-request-commits
 .merge-request-diffs
 
 
