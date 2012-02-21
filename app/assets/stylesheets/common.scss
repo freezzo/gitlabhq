@@ -98,6 +98,7 @@ a {
 }
 
 nav.main_menu { 
+  overflow:hidden;
   border-radius: 4px;
   margin: auto;
   margin:30px $app_padding;
@@ -110,13 +111,11 @@ nav.main_menu {
   background-image: -moz-linear-gradient(#eee 6.6%, #dfdfdf);
   background-image: -o-linear-gradient(#eee 6.6%, #dfdfdf);
 
-  -moz-box-shadow: 0 0 3px #ddd;
-  -webkit-box-shadow: 0 0 3px #ddd;
-  box-shadow: 0 0 3px #ddd;
+  @include shade;
 
 
   .count { 
-    color:#bbb;
+    color:#aaa;
     margin-left:3px;  
   }
 
@@ -149,7 +148,9 @@ nav.main_menu {
  
 
     &.home { 
-      padding:7px 35px;
+      background: url(home_icon.PNG) no-repeat center center;
+      text-indent:-9999px;
+      min-width:40px;
 
       img { 
         position:relative;
@@ -157,7 +158,7 @@ nav.main_menu {
       }
     }
     &.current { 
-      background:#DDD;
+      background-color:#DDD;
     }
   }
 }
@@ -279,9 +280,9 @@ img.lil_av {
 
 
 .ui-box { 
-
   margin-bottom: 40px;
   @include round-borders-all(4px);
+  @include shade;
   border-color:#ddd;
 
   ul { 
@@ -291,10 +292,6 @@ img.lil_av {
   h5, .title { 
     padding: 0 10px;
     background:#f5f5f5;
-    background-image: -webkit-gradient(linear, 0 0, 0 26, color-stop(0.076, #fefefe), to(#F6F7F8));
-    background-image: -webkit-linear-gradient(#fefefe 7.6%, #F6F7F8);
-    background-image: -moz-linear-gradient(#fefefe 7.6%, #F6F7F8);
-    background-image: -o-linear-gradient(#fefefe 7.6%, #F6F7F8);
     border-bottom: 1px solid #eee;
     @include round-borders-top(4px);
     border-top:none;
@@ -304,6 +301,10 @@ img.lil_av {
     }
   }
 
+  .row_title { 
+    font-weight:bold;
+    color:#444;
+  }
 
   li, .wll {
     padding:10px;
@@ -341,8 +342,30 @@ img.lil_av {
 
 .borders { 
   border: 1px solid #ccc;
+  @include shade;
 }
 
 .well.padded {
   padding:29px;
+}
+
+.download_repo_link { 
+  background: url("images.png") no-repeat 0 -48px;
+  padding-left:20px;
+}
+
+.number { 
+  border-radius: 4px; 
+  text-shadow: none; 
+  background: rgba(0,0,0,.12); 
+  text-align: center; 
+  padding: 2px 4px; 
+  line-height:20px;
+  margin-left:2px;
+}
+
+table a code { 
+  position: relative;
+  top: -2px;
+  margin-right: 3px;
 }

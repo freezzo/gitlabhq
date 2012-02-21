@@ -117,6 +117,7 @@ table.highlighttable .linenodiv pre {
     cursor:pointer;
   }
 
+
   .tree-item-file-name { 
     font-weight:bold;
     a { 
@@ -142,6 +143,8 @@ table.highlighttable .linenodiv pre {
 }
 
 #tree-slider { 
+  @include shade;
+
   td { 
     padding:7px;
     border-color:#f1f1f1;
@@ -154,4 +157,19 @@ table.highlighttable .linenodiv pre {
 
 .tree-commit-link { 
   color:#333;
+}
+
+#tree-content-holder .view_file{ 
+  @include shade;
+}
+
+#tree-readme-holder .readme { 
+  @include shade;
+  margin-bottom:20px;
+}
+
+a.tree-commit-link { 
+  &:hover { 
+    text-decoration: underline;
+  }
 }
