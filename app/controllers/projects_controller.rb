@@ -82,14 +82,10 @@ class ProjectsController < ApplicationController
 
   def wall
     return render_404 unless @project.wall_enabled
-
     @note = Note.new
-    @notes = @project.common_notes.order("created_at DESC")
-    @notes = @notes.fresh.limit(20)
 
     respond_to do |format|
       format.html
-      format.js { respond_with_notes }
     end
   end
 
@@ -114,6 +110,7 @@ class ProjectsController < ApplicationController
 
   def project
     @project ||= Project.find_by_code(params[:id])
+    @project || render_404
   end
 
   def determine_layout

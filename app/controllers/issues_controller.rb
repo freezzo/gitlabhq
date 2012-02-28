@@ -49,7 +49,6 @@ class IssuesController < ApplicationController
   end
 
   def show
-    @notes = @issue.notes.inc_author.order("created_at DESC").limit(20)
     @note = @project.notes.new(:noteable => @issue)
 
     @commits = if @issue.branch_name && @project.repo.heads.map(&:name).include?(@issue.branch_name)
@@ -61,7 +60,7 @@ class IssuesController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.js { respond_with_notes }
+      format.js
     end
   end
 
@@ -126,12 +125,11 @@ class IssuesController < ApplicationController
   end
 
   def authorize_modify_issue!
-    can?(current_user, :modify_issue, @issue) || 
-      @issue.assignee == current_user
+    return render_404 unless can?(current_user, :modify_issue, @issue)
   end
 
   def authorize_admin_issue!
-    can?(current_user, :admin_issue, @issue)
+    return render_404 unless can?(current_user, :admin_issue, @issue)
   end
 
   def module_enabled

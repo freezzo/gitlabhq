@@ -7,6 +7,7 @@ class CommitsController < ApplicationController
   # Authorize
   before_filter :add_project_abilities
   before_filter :authorize_read_project!
+  before_filter :authorize_code_access!
   before_filter :require_non_empty_project
   before_filter :load_refs, :only => :index # load @branch, @tag & @ref
   before_filter :render_full_content
@@ -25,16 +26,12 @@ class CommitsController < ApplicationController
 
   def show
     @commit = project.commit(params[:id])
-    @notes = project.commit_notes(@commit).fresh.limit(20)
-    @note = @project.build_commit_note(@commit)
 
+    git_not_found! and return unless @commit
+
+    @note = @project.build_commit_note(@commit)
     @comments_allowed = true
     @line_notes = project.commit_line_notes(@commit)
-
-    respond_to do |format|
-      format.html
-      format.js { respond_with_notes }
-    end
   end
 
   def compare

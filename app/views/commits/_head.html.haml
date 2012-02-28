@@ -1,6 +1,6 @@
 %ul.tabs
   %li
-    = form_tag switch_project_refs_path(@project), :method => :get, :class => "project-refs-form commit-refs-form" do
+    = form_tag switch_project_refs_path(@project), :method => :get, :class => "project-refs-form" do
       = select_tag "ref", grouped_options_refs, :onchange => "$(this.form).trigger('submit');", :class => "project-refs-select"
       = hidden_field_tag :destination, "commits"
 
@@ -21,6 +21,12 @@
       %span.number= @project.repo.tags.count
 
 
+  - if current_page?(project_commits_path(@project)) && current_user.private_token
+    %li.right
+      %span
+        = link_to project_commits_path(@project, :atom, { :private_token => current_user.private_token, :ref => @ref }), :class => "btn" do 
+          feed
+          = image_tag "Rss-UI.PNG", :width => 14, :title => "feed"
 
 
 :javascript

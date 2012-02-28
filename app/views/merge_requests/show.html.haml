@@ -10,12 +10,11 @@
     = @merge_request.created_at.stamp("Aug 21, 2011")
 
   %span.right
-    - if can?(current_user, :admin_project, @project) || @merge_request.author == current_user
+    - if can?(current_user, :modify_merge_request, @merge_request)
       - if @merge_request.closed
         = link_to 'Reopen', project_merge_request_path(@project, @merge_request, :merge_request => {:closed => false }, :status_only => true), :method => :put,  :class => "btn"
       - else
         = link_to 'Close', project_merge_request_path(@project, @merge_request, :merge_request => {:closed => true }, :status_only => true), :method => :put, :class => "btn", :title => "Close merge request"
-    - if can?(current_user, :admin_project, @project) || @merge_request.author == current_user
       = link_to edit_project_merge_request_path(@project, @merge_request), :class => "btn small" do 
         Edit
 
@@ -64,10 +63,7 @@
     %img{:src => "/assets/ajax-loader-facebook.gif", :class => "dashboard-loader"}
 
 .merge-request-notes
-  .merge_request_notes= render "notes/notes"
-  .loading{ :style => "display:none;"}
-    %center= image_tag "ajax-loader.gif"
-  .clear
+  .merge_request_notes= render "notes/notes", :tid => @merge_request.id, :tt => "merge_request"
 
 .merge-request-diffs
 
@@ -76,3 +72,15 @@
   $(function(){
     MergeRequest.init();
   })
+
+= render "notes/per_line_form"
+:javascript
+  $(document).ready(function(){
+    $(".line_note_link, .line_note_reply_link").live("click", function(e) { 
+      var form = $(".per_line_form");
+      $(this).parent().parent().after(form);
+      form.find("#note_line_code").val($(this).attr("line_code"));
+      form.show();  
+      return false;
+    });
+  });
