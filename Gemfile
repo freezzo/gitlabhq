@@ -30,6 +30,7 @@ gem "charlock_holmes"
 gem "foreman"
 gem "omniauth-ldap"
 gem 'bootstrap-sass', "1.4.4"
+gem "colored"
 
 group :assets do
   gem "sass-rails",   "3.2.3"
@@ -58,7 +59,7 @@ end
 group :test do
   gem "turn", :require => false
   gem "simplecov", :require => false
-  gem "shoulda", "~> 3.0.0.beta2"
+  gem "shoulda", "3.0.1"
 end
 
 group :production do

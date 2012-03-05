@@ -1,12 +1,10 @@
 !!! 5
 %html{ :lang => "en"}
   = render "layouts/head"
-  %body.ui_basic.application
+  %body{:class => "#{app_theme} application"}
     = render "layouts/flash"
     = render "layouts/head_panel", :title => "Dashboard"
     .container
       = render :partial => "layouts/app_menu"
       .content
-        .row
-          .span12= yield
-          .sidebar= render "layouts/projects_side"
+        = yield
