@@ -26,11 +26,11 @@ class MergeRequestsController < ApplicationController
     @merge_requests = case params[:f].to_i
                       when 1 then @merge_requests
                       when 2 then @merge_requests.closed
-                      when 2 then @merge_requests.opened.assigned(current_user)
+                      when 3 then @merge_requests.opened.assigned(current_user)
                       else @merge_requests.opened
                       end
 
-    @merge_requests = @merge_requests.includes(:author, :project)
+    @merge_requests = @merge_requests.includes(:author, :project).order("created_at desc")
   end
 
   def show
@@ -87,7 +87,7 @@ class MergeRequestsController < ApplicationController
 
   def update
     respond_to do |format|
-      if @merge_request.update_attributes(params[:merge_request])
+      if @merge_request.update_attributes(params[:merge_request].merge(:author_id_of_changes => current_user.id))
         format.html { redirect_to [@project, @merge_request], notice: 'Merge request was successfully updated.' }
         format.json { head :ok }
       else
@@ -104,6 +104,14 @@ class MergeRequestsController < ApplicationController
       format.html { redirect_to project_merge_requests_url(@project) }
       format.json { head :ok }
     end
+  end
+
+  def branch_from
+    @commit = project.commit(params[:ref])
+  end
+
+  def branch_to
+    @commit = project.commit(params[:ref])
   end
 
   protected

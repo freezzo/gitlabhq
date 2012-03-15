@@ -1,5 +1,5 @@
 - if current_user.require_ssh_key?
-  .alert-message.warning
+  .alert-message.block-message.error
     %p  
       You wont be able to pull/push project code unless you  
       = link_to new_key_path, :class => "vlink" do 
@@ -20,8 +20,8 @@
   .row
     .dashboard_block
       .row
-        .span9= render "dashboard/projects_feed"
-        .span3.right
+        .span10= render "dashboard/projects_feed"
+        .span4.right
           - if current_user.can_create_project?
             .alert-message.block-message.warning
               You can create up to
@@ -32,7 +32,7 @@
                   New Project » 
 
 
-- unless @merge_requests.blank?
+- if @merge_requests.any?
   %div.dashboard_category
     %h3
       = link_to "Merge Requests" , "#merge_requests", :id => "merge_requests"
@@ -40,24 +40,24 @@
       %small ( authored or assigned to you )
     %strong.right
       = link_to dashboard_merge_requests_path do 
-        Vist merge requests page &rarr; 
+        Visit merge requests page &rarr; 
     %hr
     .row
       .dashboard_block= render "dashboard/merge_requests_feed"
 
-- unless @issues.blank?
+- if @issues.any?
   %div.dashboard_category
     %h3
       = link_to "Issues" , "#issues", :id => "issues"
       %small ( assigned to you )
     %strong.right
       = link_to dashboard_issues_path do 
-        Vist issues page &rarr; 
+        Visit issues page &rarr; 
     %hr
     .row
       .dashboard_block= render "dashboard/issues_feed"
 
-- unless @events.blank?
+- if @events.any?
   %div.dashboard_category
     %h3
       %span.ico.activities

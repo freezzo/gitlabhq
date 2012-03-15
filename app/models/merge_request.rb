@@ -5,12 +5,14 @@ class MergeRequest < ActiveRecord::Base
   has_many :notes, :as => :noteable, :dependent => :destroy
 
   attr_protected :author, :author_id, :project, :project_id
+  attr_accessor :author_id_of_changes
 
   validates_presence_of :project_id
   validates_presence_of :assignee_id
   validates_presence_of :author_id
   validates_presence_of :source_branch
   validates_presence_of :target_branch
+  validate :validate_branches
 
   delegate :name,
            :email,
@@ -30,6 +32,13 @@ class MergeRequest < ActiveRecord::Base
   scope :closed, where(:closed => true)
   scope :assigned, lambda { |u| where(:assignee_id => u.id)}
 
+
+  def validate_branches
+    if target_branch == source_branch
+      errors.add :base, "You can not use same branch for source and target branches"
+    end
+  end
+
   def new?
     today? && created_at == updated_at
   end
@@ -41,6 +50,11 @@ class MergeRequest < ActiveRecord::Base
 
   def last_commit
     project.commit(source_branch)
+  end
+
+  # Return the number of +1 comments (upvotes)
+  def upvotes
+    notes.select(&:upvote?).size
   end
 end
 # == Schema Information

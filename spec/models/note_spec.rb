@@ -20,10 +20,29 @@ describe Note do
       Note.today.where_values.should == ["created_at >= '#{Date.today}'"]
     end
   end
- 
-  describe "Commit notes" do 
 
-    before do 
+  describe "Voting score" do
+    let(:project) { Factory(:project) }
+
+    it "recognizes a neutral note" do
+      note = Factory(:note, project: project, note: "This is not a +1 note")
+      note.should_not be_upvote
+    end
+
+    it "recognizes a +1 note" do
+      note = Factory(:note, project: project, note: "+1 for this")
+      note.should be_upvote
+    end
+
+    it "recognizes a -1 note as no vote" do
+      note = Factory(:note, project: project, note: "-1 for this")
+      note.should_not be_upvote
+    end
+  end
+
+  describe "Commit notes" do
+
+    before do
       @note = Factory :note,
         :project => project,
         :noteable_id => commit.id,
@@ -36,12 +55,12 @@ describe Note do
     end
   end
 
-  describe "Pre-line commit notes" do 
-    before do 
+  describe "Pre-line commit notes" do
+    before do
       @note = Factory :note,
         :project => project,
         :noteable_id => commit.id,
-        :noteable_type => "Commit", 
+        :noteable_type => "Commit",
         :line_code => "0_16_1"
     end
 
@@ -54,7 +73,7 @@ describe Note do
   describe :authorization do
     before do
       @p1 = project
-      @p2 = Factory :project, :code => "alien", :path => "legit_1"
+      @p2 = Factory :project, :code => "alien", :path => "gitlabhq_1"
       @u1 = Factory :user
       @u2 = Factory :user
       @u3 = Factory :user

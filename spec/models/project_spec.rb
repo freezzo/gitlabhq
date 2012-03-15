@@ -2,13 +2,17 @@ require 'spec_helper'
 
 describe Project do
   describe "Associations" do
-    it { should have_many(:events) }
     it { should have_many(:users) }
-    it { should have_many(:users_projects) }
-    it { should have_many(:issues) }
-    it { should have_many(:notes) }
-    it { should have_many(:snippets) }
+    it { should have_many(:protected_branches).dependent(:destroy) }
+    it { should have_many(:events).dependent(:destroy) }
+    it { should have_many(:wikis).dependent(:destroy) }
+    it { should have_many(:merge_requests).dependent(:destroy) }
+    it { should have_many(:users_projects).dependent(:destroy) }
+    it { should have_many(:issues).dependent(:destroy) }
+    it { should have_many(:notes).dependent(:destroy) }
+    it { should have_many(:snippets).dependent(:destroy) }
     it { should have_many(:web_hooks).dependent(:destroy) }
+    it { should have_many(:deploy_keys).dependent(:destroy) }
   end
 
   describe "Validation" do
@@ -18,10 +22,7 @@ describe Project do
   end
 
   describe "Respond to" do
-    it { should respond_to(:readers) }
-    it { should respond_to(:writers) }
     it { should respond_to(:repository_writers) }
-    it { should respond_to(:admins) }
     it { should respond_to(:add_access) }
     it { should respond_to(:reset_access) }
     it { should respond_to(:update_repository) }
@@ -70,37 +71,11 @@ describe Project do
     end
   end
 
-  describe "updates" do
-    let(:project) { Factory :project }
-
-    before do
-      @issue = Factory :issue,
-        :project => project,
-        :author => Factory(:user),
-        :assignee => Factory(:user)
-
-      @note = Factory :note,
-        :project => project,
-        :author => Factory(:user)
-
-      @commit = project.fresh_commits(1).first
-    end
-
-    describe "return commit, note & issue" do
-      it { project.updates(3).count.should == 3 }
-      it { project.updates(3).last.id.should == @commit.id }
-      it { project.updates(3).include?(@issue).should be_true }
-      it { project.updates(3).include?(@note).should be_true }
-    end
-  end
-
   describe "last_activity" do
     let(:project) { Factory :project }
 
     before do
-      @note = Factory :note,
-        :project => project,
-        :author => Factory(:user)
+      @issue = Factory :issue, :project => project
     end
 
     it { project.last_activity.should == Event.last }
@@ -111,23 +86,22 @@ describe Project do
     let(:project) { Factory :project }
 
     it { project.fresh_commits(3).count.should == 3 }
-    it { project.fresh_commits.first.id.should == "2fb376f61875b58bceee0492e270e9c805294b1a" }
-    it { project.fresh_commits.last.id.should == "0dac878dbfe0b9c6104a87d65fe999149a8d862c" }
+    it { project.fresh_commits.first.id.should == "bcf03b5de6c33f3869ef70d68cf06e679d1d7f9a" }
+    it { project.fresh_commits.last.id.should == "f403da73f5e62794a0447aca879360494b08f678" }
   end
 
   describe "commits_between" do
     let(:project) { Factory :project }
 
     subject do
-      commits = project.commits_between("a6d1d4aca0c85816ddfd27d93773f43a31395033",
-                                        "2fb376f61875b58bceee0492e270e9c805294b1a")
+      commits = project.commits_between("3a4b4fb4cde7809f033822a171b9feae19d41fff",
+                                        "8470d70da67355c9c009e4401746b1d5410af2e3")
       commits.map { |c| c.id }
     end
 
-    it { should have(2).elements }
-    it { should include("2fb376f61875b58bceee0492e270e9c805294b1a") }
-    it { should include("4571e226fbcd7be1af16e9fa1e13b7ac003bebdf") }
-    it { should_not include("a6d1d4aca0c85816ddfd27d93773f43a31395033") }
+    it { should have(3).elements }
+    it { should include("f0f14c8eaba69ebddd766498a9d0b0e79becd633") }
+    it { should_not include("bcf03b5de6c33f3869ef70d68cf06e679d1d7f9a") }
   end
 
   describe "Git methods" do
