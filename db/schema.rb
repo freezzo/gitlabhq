@@ -24,18 +24,6 @@ ActiveRecord::Schema.define(:version => 20120301185805) do
     t.integer  "action"
   end
 
-  create_table "features", :force => true do |t|
-    t.string   "name"
-    t.string   "branch_name"
-    t.integer  "assignee_id"
-    t.integer  "author_id"
-    t.integer  "project_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "version"
-    t.integer  "status",      :default => 0, :null => false
-  end
-
   create_table "issues", :force => true do |t|
     t.string   "title"
     t.integer  "assignee_id"
