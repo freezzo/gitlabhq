@@ -13,12 +13,13 @@ class DashboardController < ApplicationController
     @issues = @issues.includes(:author, :project)
 
     @events = Event.where(:project_id => @projects.map(&:id)).recent.limit(20)
+    @last_push = Event.where(:project_id => @projects.map(&:id)).recent.code_push.limit(1).first
   end
 
   # Get authored or assigned open merge requests
   def merge_requests
     @projects = current_user.projects.all
-    @merge_requests = MergeRequest.where("author_id = :id or assignee_id = :id", :id => current_user.id).opened.order("created_at DESC").limit(40)
+    @merge_requests = current_user.cared_merge_requests.order("created_at DESC").limit(40)
   end
 
   # Get only assigned issues

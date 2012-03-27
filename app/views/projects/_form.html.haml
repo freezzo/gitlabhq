@@ -19,7 +19,7 @@
       Code
     .input
       .input-prepend
-        %span.add-on= "http://#{GIT_HOST["host"]}/"
+        %span.add-on= web_app_url
         = f.text_field :code, :placeholder => "example"
 
   - unless @project.new_record? || @project.heads.empty?  
@@ -49,7 +49,7 @@
   .clearfix
     = f.label :description
     .input
-      = f.text_area :description, :placeholder => "project description", :class => "xlarge", :rows => 4
+      = f.text_area :description, :placeholder => "project description", :class => "xxlarge", :rows => 5
       %p.hint Markdown is enabled.
 
   %br

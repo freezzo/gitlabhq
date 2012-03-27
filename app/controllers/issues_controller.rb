@@ -28,9 +28,9 @@ class IssuesController < ApplicationController
               when 2 then @project.issues.closed
               when 3 then @project.issues.opened.assigned(current_user)
               else @project.issues.opened
-              end
+              end.page(params[:page]).per(20)
 
-    @issues = @issues.includes(:author, :project)
+    @issues = @issues.includes(:author, :project).order("critical, updated_at")
 
     respond_to do |format|
       format.html # index.html.erb
@@ -80,7 +80,13 @@ class IssuesController < ApplicationController
 
     respond_to do |format|
       format.js
-      format.html { redirect_to [@project, @issue]}
+      format.html do 
+        if @issue.valid?
+          redirect_to [@project, @issue]
+        else
+          render :edit
+        end
+      end
     end
   end
 
@@ -114,7 +120,7 @@ class IssuesController < ApplicationController
                   when 2 then @project.issues.closed
                   when 3 then @project.issues.opened.assigned(current_user)
                   else @project.issues.opened
-                end
+                end.page(params[:page]).per(100)
 
     @issues = @issues.where("title LIKE ?", "%#{terms}%") unless terms.blank?
 

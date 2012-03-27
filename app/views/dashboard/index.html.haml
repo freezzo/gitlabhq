@@ -11,7 +11,7 @@
     %span.ico.projects
     = link_to "Projects" , "#projects", :id => "projects"
     %small
-      ( most recent )
+      (most recent)
 
   %strong.right
     = link_to projects_path do 
@@ -20,24 +20,42 @@
   .row
     .dashboard_block
       .row
-        .span10= render "dashboard/projects_feed"
         .span4.right
-          - if current_user.can_create_project?
-            .alert-message.block-message.warning
-              You can create up to
-              = current_user.projects_limit
-              projects. Click on link below to add a new one
-              .link_holder
-                = link_to new_project_path, :class => "" do 
-                  New Project » 
-
+          %div.borders.ipadded
+            %h1
+              = pluralize current_user.projects.count, "project", "projects"
+            - if current_user.can_create_project?
+              %hr
+              %div
+                You can create up to
+                = current_user.projects_limit
+                projects. Click on button below to add a new one
+                .link_holder
+                  %br
+                  = link_to new_project_path, :class => "btn" do 
+                    New Project » 
+            - else 
+              %hr
+              %div
+                You've reached project limit for your account. 
+                You cannot create new projects.
+                .link_holder
+                  %br
+                  = link_to profile_path, :class => "btn" do 
+                    Your Profile » 
+        .span10.left= render "dashboard/projects_feed", :projects => @active_projects
+      - if @last_push
+        .padded.prepend-top-20
+          %h5
+            %small Latest push was to the #{@last_push.branch_name} branch of #{@last_push.project.name}:
+          %ul.unstyled= render @last_push
 
 - if @merge_requests.any?
   %div.dashboard_category
     %h3
       = link_to "Merge Requests" , "#merge_requests", :id => "merge_requests"
       
-      %small ( authored or assigned to you )
+      %small (authored or assigned to you)
     %strong.right
       = link_to dashboard_merge_requests_path do 
         Visit merge requests page &rarr; 
@@ -49,7 +67,7 @@
   %div.dashboard_category
     %h3
       = link_to "Issues" , "#issues", :id => "issues"
-      %small ( assigned to you )
+      %small (assigned to you)
     %strong.right
       = link_to dashboard_issues_path do 
         Visit issues page &rarr; 
@@ -65,4 +83,4 @@
 
     %hr
     .row
-      .dashboard_block= render "dashboard/events_feed"
+      .dashboard_block= render @events

@@ -1,9 +1,9 @@
 %h3
   = "Merge Request ##{@merge_request.id}:"
   &nbsp;
-  %span.label= @merge_request.source_branch
+  %span.pretty_label.branch= @merge_request.source_branch
   &rarr;
-  %span.label= @merge_request.target_branch
+  %span.pretty_label.branch= @merge_request.target_branch
 
   %small
     created at 
@@ -11,47 +11,56 @@
 
   %span.right
     - if can?(current_user, :modify_merge_request, @merge_request)
-      - if @merge_request.closed
-        = link_to 'Reopen', project_merge_request_path(@project, @merge_request, :merge_request => {:closed => false }, :status_only => true), :method => :put,  :class => "btn"
-      - else
+      - if @merge_request.open?
         = link_to 'Close', project_merge_request_path(@project, @merge_request, :merge_request => {:closed => true }, :status_only => true), :method => :put, :class => "btn", :title => "Close merge request"
-      = link_to edit_project_merge_request_path(@project, @merge_request), :class => "btn" do 
-        Edit
+        = link_to edit_project_merge_request_path(@project, @merge_request), :class => "btn" do 
+          Edit
 
+        %br
+        %small= link_to "Show how to merge", "#", :class => "vlink how_to_merge_link", :title => "How To Merge"
     %br
     - if @merge_request.upvotes > 0
       .upvotes#upvotes= "+#{pluralize @merge_request.upvotes, 'upvote'}"
 
+= render "merge_requests/how_to_merge"
 .back_link
   = link_to project_merge_requests_path(@project) do 
     &larr; To merge requests
 
 
-%hr
-- if @merge_request.closed
-  .alert-message.error Closed
-- else 
-  .alert-message.success 
-    = link_to "#", :class => "info_link", :title => "How To Merge" do 
-      = image_tag "Info-UI.PNG"
-    Open
+.merge_request_box
+  .merge_request_status_holder
+    %h5
+      - if @merge_request.closed
+        .alert-message.error.status_info Closed
+      - else 
+        .alert-message.success.status_info Open
+      = @merge_request.title
 
-= render "merge_requests/how_to_merge"
 
-%div.well
   %div
-    %cite.cgray Created by
-    = image_tag gravatar_icon(@merge_request.author_email), :width => 16, :class => "lil_av"
-    %strong.author= link_to_merge_request_author(@merge_request)
+    %div
+      %cite.cgray Created by
+      = image_tag gravatar_icon(@merge_request.author_email), :width => 16, :class => "lil_av"
+      %strong.author= link_to_merge_request_author(@merge_request)
 
-    %cite.cgray and currently assigned to 
-    = image_tag gravatar_icon(@merge_request.assignee_email), :width => 16, :class => "lil_av"
-    %strong.author= link_to_merge_request_assignee(@merge_request)
-      
+      %cite.cgray and currently assigned to 
+      = image_tag gravatar_icon(@merge_request.assignee_email), :width => 16, :class => "lil_av"
+      %strong.author= link_to_merge_request_assignee(@merge_request)
+
+
+  - if @merge_request.closed
     %hr
-    
+    - if @merge_request.merged?
+      %span
+        Merged by #{@merge_request.merge_event.author_name} 
+        %small #{time_ago_in_words(@merge_request.merge_event.created_at)} ago.
+    - elsif @merge_request.closed_event
+      %span
+        Closed by #{@merge_request.closed_event.author_name} 
+        %small #{time_ago_in_words(@merge_request.closed_event.created_at)} ago.
+    %br
 
-  %div= simple_format @merge_request.title
 
 = render "merge_requests/commits"
 
@@ -64,12 +73,11 @@
       = link_to "#diffs", "data-url" => diffs_project_merge_request_path(@project, @merge_request), :class => "merge-diffs-tab tab" do
         Diff
 
-    %img{:src => "/assets/ajax-loader-facebook.gif", :class => "dashboard-loader"}
 
 .merge_request_notes#notes= render "notes/notes", :tid => @merge_request.id, :tt => "merge_request"
 
 .merge-request-diffs
-
+.status
 
 :javascript
   $(function(){

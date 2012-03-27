@@ -7,6 +7,7 @@ class Event < ActiveRecord::Base
   Reopened  = 4
   Pushed    = 5
   Commented = 6
+  Merged    = 7
 
   belongs_to :project
   belongs_to :target, :polymorphic => true
@@ -14,6 +15,7 @@ class Event < ActiveRecord::Base
   serialize :data
 
   scope :recent, order("created_at DESC")
+  scope :code_push, where(:action => Pushed)
 
   def self.determine_action(record)
     if [Issue, MergeRequest].include? record.class

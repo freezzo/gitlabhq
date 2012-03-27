@@ -3,11 +3,24 @@ a {
   color: $link_color;
   &:hover { 
     text-decoration:none; 
-    color: $style_color;
+    color: $blue_link;
   }
 
   &.btn { 
     color: $style_color;
+  }
+}
+
+
+.btn { 
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#f1f1f1), color-stop(25%, #f1f1f1), to(#e6e6e6));
+  background-image: -webkit-linear-gradient(#f1f1f1, #f1f1f1 25%, #e6e6e6);
+  background-image: -moz-linear-gradient(top, #f1f1f1, #f1f1f1 25%, #e6e6e6);
+  background-image: -ms-linear-gradient(#f1f1f1, #f1f1f1 25%, #e6e6e6);
+  background-image: -o-linear-gradient(#f1f1f1, #f1f1f1 25%, #e6e6e6);
+  background-image: linear-gradient(#f1f1f1, #f1f1f1 25%, #e6e6e6);
+
+  &:hover { 
   }
 }
 
@@ -29,6 +42,29 @@ a:focus {
 
 .label { 
   background-color: #474D57;
+
+  &.pushed { 
+    background-color: $link_color;
+  }
+}
+
+.pretty_label { 
+  @include round-borders-all(4px);
+  padding:2px 4px;
+  background-image: -webkit-gradient(linear, 0 0, 0 26, color-stop(0.076, #fefefe), to(#F6F7F8));
+  background-image: -webkit-linear-gradient(#fefefe 7.6%, #F6F7F8);
+  background-image: -moz-linear-gradient(#fefefe 7.6%, #F6F7F8);
+  background-image: -o-linear-gradient(#fefefe 7.6%, #F6F7F8);
+  color: #777;
+  border: 1px solid #DEDFE1;
+
+  &.branch { 
+    border:none;
+    font-size:13px;
+    background: #474D57;
+    color:#fff;
+    font-family: monospace;
+  }
 }
 
 .tabs > li > a, .pills > li > a {
@@ -79,8 +115,16 @@ a:focus {
   margin-top:10px;
 }
 
+.prepend-top-20 {
+  margin-top:20px;
+}
+
 .padded { 
   padding:20px;
+}
+
+.ipadded { 
+  padding:20px !important;
 }
 .no-borders { 
   border:none;
@@ -250,8 +294,8 @@ nav.main_menu {
   background-image: -o-linear-gradient(#eee 6.6%, #dfdfdf);
   @include shade;
   .count { 
-    color:#aaa;
-    margin-left:3px;  
+    margin-left:3px;
+    color: #aaa;
   }
   .label { 
     background:$hover;
@@ -315,12 +359,15 @@ img.lil_av {
   top: 3px;
 }
 
-.media-grid { 
-  h3, h2 , h4 {
-    &.media_h { 
-      padding-left:10px;
-      float:left;
-    }
+.profile_avatar_holder { 
+  float:left;
+  width:90px;
+  height:90px;
+  margin-right:20px;
+  img { 
+    width:90px;
+    height:90px;
+    background:#eee;
   }
 }
 
@@ -426,8 +473,26 @@ img.lil_av {
     border-top:none;
 
     form { 
-      padding-top:16px;
+      padding:9px 0;
+      margin:0px;
     }
+
+    .pills { 
+      li { 
+        padding:3px 0;
+        &.active a { background-color:$style_color; }
+        a { 
+          border-radius:7px;
+        }
+      }
+    }
+  }
+
+  .bottom { 
+    background:#f5f5f5;
+    border-top: 1px solid #eee;
+    @include round-borders-bottom(4px);
+    border-bottom:none;
   }
 
   &.padded { 
@@ -524,7 +589,7 @@ table a code {
 
 .loading { 
   margin:20px auto;
-  background: url(ajax-loader-facebook.gif) no-repeat center center;
+  background: url(ajax_loader.gif) no-repeat center center;
   width:40px;
   height:40px;
 }
@@ -803,12 +868,12 @@ p.time {
     width:840px;
     margin:auto;
 
-    .wll { 
-      padding:5px;
-      margin-top:5px;
+    .dash_project_item { 
+      margin-bottom:10px;
       border:none;
       &:hover { 
         background:none;
+        h4 { color:#2FA0BB; }
       }
 
       h4 {
@@ -829,7 +894,7 @@ p.time {
 
 .event_feed { 
   min-height:40px;
-  border-bottom:1px solid #eee;
+  border-bottom:1px solid #ddd;
   .avatar { 
     width:32px;
   }
@@ -841,9 +906,7 @@ p.time {
     }
   }
 
-  padding: 10px 5px;
-  border-bottom: 1px solid #eee;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 15px 5px;
   &:last-child { border:none }
   .wll:hover { background:none }
 }
@@ -883,7 +946,7 @@ p.time {
   }
   a:last-child h4 { border:none; }
 
-  a.active { 
+  a:hover { 
     h4 {
       color:#111;
       border-right:4px solid $styled_border_color;
@@ -934,4 +997,151 @@ p.time {
   text-align: right;
   padding: 4px;
   margin: 2px;
+}
+
+/* Fix for readme code (stopped it from being yellow) */
+.readme {
+  pre {
+    background: white !important;
+    
+    code {
+      background: none !important;
+    }
+  }
+}
+
+.project_box,
+.issue_box, 
+.commit_box,
+.merge_request_box{ 
+  @extend .padded;
+  @extend .borders;
+  @extend .prepend-top-20;
+  @extend .append-bottom-20;
+  border-width:2px;
+
+  img { max-width: 100%; }
+
+  pre {
+    code {
+      background: none !important;
+    }
+  }
+}
+
+.project_box .project_descr,
+.commit_box .commit_message { 
+  margin: -20px;
+  padding: 20px;
+  margin-top:10px;
+  border-radius:0;
+  border:none;
+  font-size:12px;
+  background-color:#f5f5f5;
+  border:none;
+  border-top:1px solid #eee;
+}
+
+.highlight_word { 
+  background:#EEDC94;
+}
+
+.status_info { 
+  font-size:14px;
+  padding:5px 15px;
+  line-height:24px;
+  width:60px;
+  text-align:center;
+  float:left;
+  margin-right:20px;
+}
+
+.merge_request_status_holder { 
+  margin-bottom:20px;
+}
+
+.arrow{ 
+  float: right;
+  background: #E3E5EA;
+  padding: 10px;
+  border-radius: 5px;
+  text-shadow: none;
+  color: #999;
+  line-height: 16px;
+  font-weight:bold;
+}
+
+.thin_area{
+  height: 150px;
+}
+
+.gitlab_pagination { 
+  span a { color:$link_color; }
+  .prev, .next, .current, .page a { 
+    padding:10px;
+  }
+  .current { 
+    border-bottom:2px solid $style_color;
+  }
+}
+
+// Fixes alignment on notes.
+.new_note {
+  label {
+    text-align:left;
+  }
+}
+
+.new_note {
+  .input-file {
+    font: 500px monospace;
+    opacity:0;
+    filter: alpha(opacity=0);
+    position: absolute;
+    z-index: 1;
+    top:0;
+    right:0;
+    padding:0;
+    margin: 0;
+  }
+
+  .file_upload {
+    position: absolute;
+    right:14px;
+    top:7px;
+  }
+
+  div.attachments {
+    position:relative;
+    width: 350px;
+    height: 36px;
+    overflow:hidden;
+    margin:0 0 5px !important;
+  }
+  .file_name {
+    line-height:30px;
+    width:240px;
+    height:28px;
+    overflow:hidden;
+  }
+}
+
+// Fix issue with notes & lists creating a bunch of bottom borders.
+li.note {
+  img { max-width:100% }
+  .note-title {
+    li {
+      border-bottom:none !important;
+    }
+    .file {
+      padding-left:20px;
+      background:url("icon-attachment.png") no-repeat left center;
+    }
+  }
+}
+
+.markdown { 
+  img { 
+    max-width:100%;
+  }
 }

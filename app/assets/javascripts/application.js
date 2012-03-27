@@ -11,6 +11,7 @@
 //= require jquery.tagify
 //= require jquery.cookie
 //= require jquery.endless-scroll
+//= require jquery.highlight
 //= require bootstrap-modal
 //= require modernizr
 //= require chosen
@@ -68,4 +69,8 @@ function showMenu() {
 
 function resetMenu() {
   $(this).removeClass("hover");
+}
+
+function slugify(text) {
+  return text.replace(/[^-a-zA-Z0-9]+/g, '_').toLowerCase();
 }

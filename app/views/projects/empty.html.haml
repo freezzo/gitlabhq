@@ -6,7 +6,7 @@
       %li Visit profile &rarr; keys and add public key of every machine you want to use for work with gitlabhq. 
 
 .alert-message.block-message.error
-  %ul.alert_holder
+  %ul.unstyled.alert_holder
     %li You should push repository to proceed.
     %li After push you will be able to browse code, commits etc. 
 
@@ -38,3 +38,7 @@
     "git remote add origin #{@project.url_to_repo}",
     "git push -u origin master"].join("\n")
   = raw bash_lexer.highlight(exist_repo_setup_str)
+
+  - if can? current_user, :admin_project, @project
+    .alert-message.block-message.error.prepend-top-20
+      = link_to 'Remove project', @project, :confirm => 'Are you sure?', :method => :delete, :class => "btn danger"
