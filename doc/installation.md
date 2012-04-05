@@ -1,40 +1,45 @@
 ## Platform requirements: 
 
-**The project is designed for the Linux operating system. **
+**The project is designed for the Linux operating system.**
 
 It may work on FreeBSD and Mac OS, but we don't test our application for these systems and can't guarantee stability and full functionality.
 
-We officially support next Linux Distributions:
+We officially support (recent versions of) these Linux distributions:
 
-- Ubuntu
-- Debian
+- Ubuntu Linux
+- Debian/GNU Linux
 
 It should work on:
 
 - Fedora
 - CentOs
-- Red Hat
+- RedHat
 
-It can work on:
+You might have some luck using these, but no guarantees:
 
- - Mac Os
+ - MacOS X
  - FreeBSD
 
-It 100% **wont** work on  Windows
-
+Gitlab does **not** run on Windows and we have no plans of making Gitlab compatible.
 
 ## This installation guide created for Debian/Ubuntu and properly tested. 
 
 The installation consists of 6 steps:
 
-1. install packeges.
-2. install ruby
-3. install gitolite
-4. install gitlab and configuration. Check status configuration.
-5. server up.
-6. run resque process (for processing queue).
+1. Install packages / dependencies
+2. Install ruby
+3. Install gitolite
+4. Install and configure Gitlab.
+5. Start the web front-end
+6. Start a Resque worker (for background processing)
 
-** Before submit an installation issue - please check if you followed all steps **
+### IMPORTANT
+
+Please make sure you have followed all the steps below before posting to the mailinglist with installation and configuration questions.
+
+Only create a Github Issue if you want a specific part of this installation guide updated.
+
+Also read the [Read this before you submit an issue](https://github.com/gitlabhq/gitlabhq/wiki/Read-this-before-you-submit-an-issue) wiki page.
 
 > - - -
 > First 3 steps can be easily skipped with simply install script:
@@ -43,7 +48,7 @@ The installation consists of 6 steps:
 >     apt-get install curl sudo
 >     
 >     # 3 steps in 1 command :)
->     curl http://dl.dropbox.com/u/936096/debian_ubuntu.sh | sh
+>     curl https://raw.github.com/gitlabhq/gitlabhq/master/doc/debian_ubuntu.sh | sh
 > 
 > Now you can go to step 4"
 > - - -
@@ -56,6 +61,9 @@ The installation consists of 6 steps:
     sudo apt-get upgrade
 
     sudo apt-get install -y git-core wget curl gcc checkinstall libxml2-dev libxslt-dev sqlite3 libsqlite3-dev libcurl4-openssl-dev libreadline-dev libc6-dev libssl-dev libmysql++-dev make build-essential zlib1g-dev libicu-dev redis-server openssh-server git-core python-dev python-pip sendmail
+    
+    # If you want to use MySQL:
+    sudo apt-get install -y mysql-server mysql-client libmysqlclient-dev
 
 # 2. Install ruby
 
@@ -79,8 +87,6 @@ Create user for git:
       --home /home/git \
       git
 
-    
-
 Create user for gitlab:
 
     # ubuntu/debian
@@ -101,7 +107,8 @@ Get gitolite source code:
 
 Setup:
 
-    sudo -u git -H /home/git/gitolite/src/gl-system-install
+    sudo -u git sh -c 'echo "PATH=\$PATH:/home/git/bin\nexport PATH" > /home/git/.profile'
+    sudo -u git -i -H /home/git/gitolite/src/gl-system-install
     sudo cp /home/gitlab/.ssh/id_rsa.pub /home/git/gitlab.pub
     sudo chmod 777 /home/git/gitlab.pub
 
@@ -122,8 +129,7 @@ Permissions:
     # if succeed  you can remove it
     sudo rm -rf /tmp/gitolite-admin 
 
-** IMPORTANT! If you cant clone `gitolite-admin` repository - DONT PROCEED INSTALLATION**
-
+**IMPORTANT! If you cant clone `gitolite-admin` repository - DONT PROCEED INSTALLATION**
 
 # 4. Install gitlab and configuration. Check status configuration.
 
@@ -153,12 +159,11 @@ Permissions:
 
 #### Setup DB
 
-    sudo -u gitlab bundle exec rake db:setup RAILS_ENV=production
-    sudo -u gitlab bundle exec rake db:seed_fu RAILS_ENV=production
+    sudo -u gitlab bundle exec rake gitlab:app:setup RAILS_ENV=production
     
 Checking status:
 
-    sudo -u gitlab bundle exec rake gitlab_status RAILS_ENV=production
+    sudo -u gitlab bundle exec rake gitlab:app:status RAILS_ENV=production
 
 
     # OUTPUT EXAMPLE
@@ -196,8 +201,8 @@ Application can be started with next command:
     ./resque.sh
 
 
-** Ok - we have a working application now. **
-** But keep going - there are some thing that should be done **
+**Ok - we have a working application now. **
+**But keep going - there are some thing that should be done **
 
 # Nginx && Unicorn
 
@@ -214,16 +219,33 @@ Application can be started with next command:
 Edit /etc/nginx/nginx.conf. Add next code to **http** section:
 
     upstream gitlab {
-        server unix:/tmp/gitlab.socket;
+        server unix:/home/gitlab/gitlab/tmp/sockets/gitlab.socket;
     }
 
     server {
-        listen 80;
-        server_name mygitlab.com;
+        listen YOUR_SERVER_IP:80;
+        server_name gitlab.YOUR_SUBDOMAIN.com;
         root /home/gitlab/gitlab/public;
-        try_files $uri $uri/index.html $uri.html @gitlab;
         
+        # individual nginx logs for this gitlab vhost
+        access_log  /var/log/nginx/gitlab_access.log;
+        error_log   /var/log/nginx/gitlab_error.log;
+        
+        location / {
+        # serve static files from defined root folder;.
+        # @gitlab is a named location for the upstream fallback, see below
+        try_files $uri $uri/index.html $uri.html @gitlab;
+        }
+        
+        # if a file, which is not found in the root folder is requested, 
+        # then the proxy pass the request to the upsteam (gitlab unicorn)
         location @gitlab {
+          proxy_redirect     off;
+          # you need to change this to "https", if you set "ssl" directive to "on"
+          proxy_set_header   X-FORWARDED_PROTO http;
+          proxy_set_header   Host              gitlab.YOUR_SUBDOMAIN.com:80;
+          proxy_set_header   X-Real-IP         $remote_addr;
+        
           proxy_pass http://gitlab;
         }
 
@@ -239,13 +261,13 @@ Create init script in /etc/init.d/gitlab:
 
     #! /bin/bash
     ### BEGIN INIT INFO
-    # Provides:          unicorn
-    # Required-Start:    $local_fs $remote_fs $network $syslog
+    # Provides:          gitlab
+    # Required-Start:    $local_fs $remote_fs $network $syslog redis-server
     # Required-Stop:     $local_fs $remote_fs $network $syslog
     # Default-Start:     2 3 4 5
     # Default-Stop:      0 1 6
-    # Short-Description: starts the unicorn web server
-    # Description:       starts unicorn
+    # Short-Description: GitLab git repository management
+    # Description:       GitLab git repository management
     ### END INIT INFO
     
     DAEMON_OPTS="-c /home/gitlab/gitlab/config/unicorn.rb -E production -D"
@@ -300,7 +322,7 @@ Adding permission:
 
 When server is rebooted then gitlab must starting:
 
-    sudo update-rc.d gitlab defaults
+    sudo insserv gitlab
 
 Now you can start/restart/stop gitlab like:
 
