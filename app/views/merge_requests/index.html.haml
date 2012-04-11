@@ -8,7 +8,7 @@
 
 .ui-box
   .title
-    %ul.pills
+    %ul.nav.nav-pills
       %li{:class => ("active" if (params[:f] == "0" || !params[:f]))}
         = link_to project_merge_requests_path(@project, :f => 0) do 
           Open
@@ -30,7 +30,7 @@
     - if @merge_requests.present?
       %li.bottom
         .row
-          .span10= paginate @merge_requests, :theme => "gitlab"
+          .span7= paginate @merge_requests, :theme => "gitlab"
           .span4.right
             %span.cgray.right #{@merge_requests.total_count} merge requests for this filter
 

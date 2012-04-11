@@ -123,10 +123,14 @@ module ApplicationHelper
   end
 
   def app_theme
-    if current_user && current_user.theme_id == 1
+    if true#current_user && current_user.theme_id == 1
       "ui_basic"
     else
       "ui_mars"
     end
+  end
+
+  def string_to_utf8 str
+    Gitlabhq::Encode.utf8 str
   end
 end

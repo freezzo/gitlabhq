@@ -39,18 +39,28 @@
 
   .view_file .view_file_header,
   .diff_file .diff_file_header {
-    background:#f5f5f5;
+    border-bottom: 1px solid #bbb;
+    background:#eee;
+    background-image: -webkit-gradient(linear, 0 0, 0 30, color-stop(0.066, #eee), to(#dfdfdf));
+    background-image: -webkit-linear-gradient(#eee 6.6%, #dfdfdf);
+    background-image: -moz-linear-gradient(#eee 6.6%, #dfdfdf);
+    background-image: -o-linear-gradient(#eee 6.6%, #dfdfdf);
     margin: 0;
     font-weight: normal;
     font-weight: bold;
     text-align: left;
     color: #666;
-    border-bottom: 1px solid #ccc;
-    padding: 7px 10px;
+    padding: 9px 10px;
+    height:18px;
 
     .mode_text,
     .file_icon { 
-      color:#aaa;
+      color:#777;
+    }
+
+    .file_name { 
+      color:#474D57;
+      text-shadow: 0 1px 1px #fff;
     }
   }
 
@@ -103,22 +113,29 @@
     color:#888;
   }
 
-  .tree-item { 
-    &:hover { 
-      background: $hover;
-      cursor:pointer;
+  #tree-slider {
+    .tree-item { 
+      &:hover { 
+        td { background: $hover; }
+        cursor:pointer;
+      }
     }
+  }
 
-
+  .tree-item { 
     .tree-item-file-name { 
+      vertical-align:middle;
       font-weight:bold;
       a { 
         color:$style_color;
+        &:hover { 
+          color:$blue_link;
+        }
       }
 
       img { 
         position: relative;
-        top: 2px;
+        top:-1px;
       }
     }
   }
@@ -126,9 +143,13 @@
   ul.breadcrumb {
     background:white;
     border:none;
+    li {
+      display: inline;
+      text-shadow: 0 1px 0 white
+    }
 
     a { 
-      color:#666;
+      color:#474D57;
       font-weight:bold;
       font-size:14px;
     }
@@ -136,15 +157,29 @@
 
   #tree-slider { 
     @include shade;
+    width:100%;
+
+    border-color:#ccc;
 
     td { 
-      padding:7px;
+      padding:8px;
       border-color:#f1f1f1;
+      background:#fafafa;
+    }
+
+    tr:first-child td:first-child, 
+    tr:first-child td:last-child { 
+      border-radius:0;
     }
 
     th { 
-      background:#f5f5f5;
-      border-color:#f1f1f1;
+      border-color: #CCC;
+      border-bottom: 1px solid #bbb;
+      background:#eee;
+      background-image: -webkit-gradient(linear, 0 0, 0 30, color-stop(0.066, #eee), to(#dfdfdf));
+      background-image: -webkit-linear-gradient(#eee 6.6%, #dfdfdf);
+      background-image: -moz-linear-gradient(#eee 6.6%, #dfdfdf);
+      background-image: -o-linear-gradient(#eee 6.6%, #dfdfdf);
     }
   }
 

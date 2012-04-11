@@ -5,6 +5,7 @@ describe Issue do
     it { should belong_to(:project) }
     it { should belong_to(:author) }
     it { should belong_to(:assignee) }
+    it { should belong_to(:milestone) }
   end
 
   describe "Validation" do
