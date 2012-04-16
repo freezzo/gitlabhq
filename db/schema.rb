@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120408181910) do
+ActiveRecord::Schema.define(:version => 20120413135904) do
 
   create_table "events", :force => true do |t|
     t.string   "target_type"
@@ -168,6 +168,7 @@ ActiveRecord::Schema.define(:version => 20120408181910) do
     t.boolean  "dark_scheme",                           :default => false, :null => false
     t.integer  "theme_id",                              :default => 1,     :null => false
     t.string   "bio"
+    t.boolean  "blocked",                               :default => false, :null => false
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

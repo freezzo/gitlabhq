@@ -106,6 +106,11 @@ class Commit
     utf8 author.name
   end
 
+  # Was this commit committed by a different person than the original author?
+  def different_committer?
+    author_name != committer_name || author_email != committer_email
+  end
+
   def committer_name
     utf8 committer.name
   end

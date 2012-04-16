@@ -24,7 +24,7 @@
 
 .main_box
   .top_box_content
-    %h5
+    %h4
       - if @issue.closed
         .alert-message.error.status_info Closed
       - else 
@@ -42,7 +42,8 @@
       
   - if @issue.description.present?
     .bottom_box_content
-      = markdown @issue.description
+      = preserve do
+        = markdown @issue.description
 
 
 .issue_notes#notes= render "notes/notes", :tid => @issue.id, :tt => "issue"
