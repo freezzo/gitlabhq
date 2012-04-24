@@ -6,7 +6,11 @@ class Milestone < ActiveRecord::Base
   validates_presence_of :title
 
   def self.active
-    where("due_date > ? ", Date.today)
+    where("due_date > ? OR due_date IS NULL", Date.today)
+  end
+
+  def participants
+    User.where(:id => issues.map(&:assignee_id))
   end
 
   def percent_complete

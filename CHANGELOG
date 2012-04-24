@@ -1,5 +1,13 @@
 v 2.4.0
-  - Accept merge request
+  - Admin area stats page
+  - Ability to block user
+  - Simplified dashboard area
+  - Improved admin area
+  - Bootstrap 2.0
+  - Responsive layout
+  - Big commits handling
+  - Perfomance improved
+  - Milestones
 
 v 2.3.1
   - Issues pagination

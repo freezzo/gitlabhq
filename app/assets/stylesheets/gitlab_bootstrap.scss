@@ -111,6 +111,7 @@ table {
 
   &.btn-primary { 
     background:$link_color;
+    border-color: #2A79A3;
     &:hover { 
       background:$blue_link;
     }
@@ -449,4 +450,18 @@ form {
     }
   }
 
+}
+
+table.admin-table {
+  @extend .table-bordered; 
+  @extend .zebra-striped;
+  th { 
+    border-color: #CCC;
+    border-bottom: 1px solid #bbb;
+    background:#eee;
+    background-image: -webkit-gradient(linear, 0 0, 0 30, color-stop(0.066, #eee), to(#dfdfdf));
+    background-image: -webkit-linear-gradient(#eee 6.6%, #dfdfdf);
+    background-image: -moz-linear-gradient(#eee 6.6%, #dfdfdf);
+    background-image: -o-linear-gradient(#eee 6.6%, #dfdfdf);
+  }
 }

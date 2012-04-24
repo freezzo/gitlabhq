@@ -37,6 +37,10 @@ module Project::RepositoryTrait
       end
     end
 
+    def satellite
+      @satellite ||= Gitlabhq::Satellite.new(self)
+    end
+
     def write_hook(name, content)
       hook_file = File.join(path_to_repo, 'hooks', name)
 
@@ -45,6 +49,11 @@ module Project::RepositoryTrait
       end
 
       File.chmod(0775, hook_file)
+    end
+
+    def has_post_receive_file?
+      hook_file = File.join(path_to_repo, 'hooks', 'post-receive')
+      File.exists?(hook_file) 
     end
 
     def tags

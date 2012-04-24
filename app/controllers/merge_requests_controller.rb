@@ -2,7 +2,7 @@ class MergeRequestsController < ApplicationController
   before_filter :authenticate_user!
   before_filter :project
   before_filter :module_enabled
-  before_filter :merge_request, :only => [:edit, :update, :destroy, :show, :commits, :diffs]
+  before_filter :merge_request, :only => [:edit, :update, :destroy, :show, :commits, :diffs, :automerge, :automerge_check]
   layout "project"
 
   # Authorize
@@ -34,11 +34,14 @@ class MergeRequestsController < ApplicationController
   end
 
   def show
-    unless @project.repo.heads.map(&:name).include?(@merge_request.target_branch) && 
-      @project.repo.heads.map(&:name).include?(@merge_request.source_branch)
-      git_not_found! and return 
-    end
+    # Show git not found page if target branch doesnt exist
+    return git_not_found! unless @project.repo.heads.map(&:name).include?(@merge_request.target_branch) 
 
+    # Show git not found page if source branch doesnt exist
+    # and there is no saved commits between source & target branch
+    return git_not_found! if !@project.repo.heads.map(&:name).include?(@merge_request.source_branch) && @merge_request.commits.blank?
+    
+    # Build a note object for comment form
     @note = @project.notes.new(:noteable => @merge_request)
 
     # Get commits from repository 
@@ -86,12 +89,30 @@ class MergeRequestsController < ApplicationController
     respond_to do |format|
       if @merge_request.update_attributes(params[:merge_request].merge(:author_id_of_changes => current_user.id))
         @merge_request.reload_code
+        @merge_request.mark_as_unchecked
         format.html { redirect_to [@project, @merge_request], notice: 'Merge request was successfully updated.' }
         format.json { head :ok }
       else
         format.html { render action: "edit" }
         format.json { render json: @merge_request.errors, status: :unprocessable_entity }
       end
+    end
+  end
+
+  def automerge_check
+    if @merge_request.unchecked? 
+      @merge_request.check_if_can_be_merged
+    end
+    render :json => {:state => @merge_request.human_state}
+  end
+
+  def automerge
+    return access_denied! unless can?(current_user, :accept_mr, @project)
+    if @merge_request.open? && @merge_request.can_be_merged?
+      @merge_request.automerge!(current_user)
+      @status = true
+    else
+      @status = false
     end
   end
 

@@ -14,6 +14,8 @@ Gitlab::Application.routes.draw do
     resources :users do 
       member do 
         put :team_update
+        put :block
+        put :unblock
       end
     end
     resources :projects, :constraints => { :id => /[^\/]+/ } do 
@@ -27,7 +29,7 @@ Gitlab::Application.routes.draw do
     get 'mailer/preview_note'
     get 'mailer/preview_user_new'
     get 'mailer/preview_issue_new'
-    root :to => "users#index"
+    root :to => "dashboard#index"
   end
 
   get "errors/githost"
@@ -98,6 +100,8 @@ Gitlab::Application.routes.draw do
     resources :merge_requests do 
       member do 
         get :diffs
+        get :automerge
+        get :automerge_check
       end
 
       collection do 

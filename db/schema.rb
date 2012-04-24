@@ -65,6 +65,7 @@ ActiveRecord::Schema.define(:version => 20120413135904) do
     t.text     "st_commits",    :limit => 2147483647
     t.text     "st_diffs",      :limit => 2147483647
     t.boolean  "merged",                              :default => false, :null => false
+    t.integer  "state",                               :default => 1,     :null => false
   end
 
   add_index "merge_requests", ["project_id"], :name => "index_merge_requests_on_project_id"
