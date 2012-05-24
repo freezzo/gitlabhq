@@ -108,7 +108,7 @@ Get gitolite source code:
 Setup:
 
     sudo -u git sh -c 'echo -e "PATH=\$PATH:/home/git/bin\nexport PATH" > /home/git/.profile'
-    sudo -u git -i -H /home/git/gitolite/src/gl-system-install
+    sudo -u git -H sh -c "PATH=/home/git/bin:$PATH; /home/git/gitolite/src/gl-system-install"
     sudo cp /home/gitlab/.ssh/id_rsa.pub /home/git/gitlab.pub
     sudo chmod 777 /home/git/gitlab.pub
 
@@ -284,7 +284,7 @@ Create init script in /etc/init.d/gitlab:
 
             echo -n "Starting $DESC: "
             if [ `whoami` = root ]; then
-              sudo -u gitlab sh -c "$CD_TO_APP_DIR > /dev/null 2>&1 && $START_DAEMON_PROCESS && $START_RESQUE_PROCESS"
+              sudo -u gitlab sh -l -c "$CD_TO_APP_DIR > /dev/null 2>&1 && $START_DAEMON_PROCESS && $START_RESQUE_PROCESS"
             else
               $CD_TO_APP_DIR > /dev/null 2>&1 && $START_DAEMON_PROCESS && $START_RESQUE_PROCESS
             fi

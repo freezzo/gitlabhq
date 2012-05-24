@@ -35,6 +35,7 @@ Gitlab::Application.routes.draw do
   get "errors/githost"
   get "profile/password", :to => "profile#password"
   put "profile/password", :to => "profile#password_update"
+  get "profile/token", :to => "profile#token"
   put "profile/reset_private_token", :to => "profile#reset_private_token"
   get "profile", :to => "profile#show"
   get "profile/design", :to => "profile#design"
@@ -90,6 +91,14 @@ Gitlab::Application.routes.draw do
         # tree viewer
         get "tree/:path" => "refs#tree",
           :as => :tree_file,
+          :constraints => {
+            :id => /[a-zA-Z.0-9\/_\-]+/,
+            :path => /.*/
+          }
+
+        # blame
+        get "blame/:path" => "refs#blame",
+          :as => :blame_file,
           :constraints => {
             :id => /[a-zA-Z.0-9\/_\-]+/,
             :path => /.*/

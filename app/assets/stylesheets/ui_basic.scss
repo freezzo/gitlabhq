@@ -81,17 +81,8 @@
       }
     }
 
-    .top_panel_ico { 
-      width: 16px;
-      height: 16px;
-      padding: 5px;
-      margin-right:10px;
-      float:right;
-    }
-
     .project_name {
       float:left;
-      width:360px;
       margin:0;
       margin-right:30px;
       font-size:20px;
@@ -99,6 +90,14 @@
       font-weight:bold;
       color:$style_color;
       text-shadow: 0 1px 1px #FFF;
+    }
+
+    .fbtn { 
+      float: right;
+      margin-right:10px;
+      .btn { 
+        margin-left:8px;
+      }
     }
 
     .search { 
@@ -111,6 +110,8 @@
         background-repeat: no-repeat;
         background-position: 10px;
         padding-left:25px;
+        @include border-radius(5px);
+        border:1px solid #ccc;
       }
     }
   }

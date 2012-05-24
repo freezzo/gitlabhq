@@ -1,3 +1,6 @@
+body { 
+  margin-bottom:20px;
+}
 a {
   outline: none;
   color: $link_color;
@@ -65,6 +68,10 @@ a {
 
 h3, h4, h5, h6 {
   line-height: 36px;
+}
+
+h5 { 
+  font-size:14px;
 }
 
 code { 
@@ -257,7 +264,7 @@ table.no-borders {
 
 .event_label { 
   background: #FCEEC1;
-  padding:0 2px;
+  padding: 2px 2px 0;
   font-family: monospace;
 }
 
@@ -268,6 +275,13 @@ img.avatar {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
+
+  &.s16 { 
+    width:16px;
+  }
+  &.s24 { 
+    width:24px;
+  }
 }
 
 img.lil_av { 
