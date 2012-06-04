@@ -1,19 +1,4 @@
 module CommitsHelper
-  def old_line_number(line, i)
-
-  end
-
-  def new_line_number(line, i)
-
-  end
-
-  def more_commits_link
-    offset = params[:offset] || 0
-    limit = params[:limit] || 100
-    link_to "More", project_commits_path(@project, :offset =>  offset.to_i + limit.to_i, :limit => limit),
-      :remote => true, :class => "lite_button vm", :style => "text-align:center; width:930px; ", :id => "more-commits-link"
-  end
-
   def commit_msg_with_link_to_issues(project, message)
     return '' unless message
     out = ''
@@ -58,14 +43,14 @@ module CommitsHelper
       next if line.match(/^\-\-\- a/)
       next if line.match(/^\+\+\+ b/)
 
-      full_line = html_escape(line.gsub(/\n/, '')).force_encoding("UTF-8")
+      full_line = html_escape(line.gsub(/\n/, ''))
 
       if line.match(/^@@ -/)
         type = "match"
 
         line_old = line.match(/\-[0-9]*/)[0].to_i.abs rescue 0
         line_new = line.match(/\+[0-9]*/)[0].to_i.abs rescue 0
-                
+
         next if line_old == 1 && line_new == 1
         yield(full_line, type, nil, nil, nil)
         next
@@ -84,6 +69,16 @@ module CommitsHelper
         line_new += 1
         line_old += 1
       end
+    end
+  end
+
+  def image_diff_class(diff)
+    if diff.deleted_file
+      "diff_image_removed"
+    elsif diff.new_file
+      "diff_image_added"
+    else
+      nil
     end
   end
 end

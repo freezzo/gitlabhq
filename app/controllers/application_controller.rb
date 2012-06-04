@@ -1,12 +1,16 @@
 class ApplicationController < ActionController::Base
   before_filter :authenticate_user!
   before_filter :reject_blocked!
-  before_filter :set_current_user_for_mailer
+  before_filter :set_current_user_for_mailer, :check_token_auth
   protect_from_forgery
   helper_method :abilities, :can?
 
-  rescue_from Gitlabhq::Gitolite::AccessDenied do |exception|
+  rescue_from Gitlab::Gitolite::AccessDenied do |exception|
     render "errors/gitolite", :layout => "error"
+  end
+
+  rescue_from Encoding::CompatibilityError do |exception|
+    render "errors/encoding", :layout => "error", :status => 404
   end
 
   rescue_from ActiveRecord::RecordNotFound do |exception|
@@ -17,9 +21,16 @@ class ApplicationController < ActionController::Base
 
   protected
 
+  def check_token_auth
+    # Redirect to login page if not atom feed
+    if params[:private_token].present? && params[:format] != 'atom'
+      redirect_to new_user_session_path
+    end
+  end
+
   def reject_blocked!
     if current_user && current_user.blocked
-      sign_out current_user 
+      sign_out current_user
       flash[:alert] = "Your account was blocked"
       redirect_to new_user_session_path
     end

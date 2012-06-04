@@ -14,6 +14,11 @@ class ProjectsController < ApplicationController
     @projects = current_user.projects.includes(:events).order("events.created_at DESC")
     @projects = @projects.page(params[:page]).per(40)
     @events = Event.where(:project_id => current_user.projects.map(&:id)).recent.limit(20)
+
+    respond_to do |format|
+      format.html
+      format.atom { render :layout => false }
+    end
   end
 
   def new
@@ -31,7 +36,7 @@ class ProjectsController < ApplicationController
       @project.save!
       @project.users_projects.create!(:project_access => UsersProject::MASTER, :user => current_user)
 
-      # when project saved no team member exist so 
+      # when project saved no team member exist so
       # project repository should be updated after first user add
       @project.update_repository
     end
@@ -45,7 +50,7 @@ class ProjectsController < ApplicationController
         format.js
       end
     end
-  rescue Gitlabhq::Gitolite::AccessDenied
+  rescue Gitlab::Gitolite::AccessDenied
     render :js => "location.href = '#{errors_githost_path}'" and return
   rescue StandardError => ex
     @project.errors.add(:base, "Cant save project. Please try again later")
@@ -72,7 +77,7 @@ class ProjectsController < ApplicationController
     @events = @project.events.recent.limit(limit)
 
     respond_to do |format|
-      format.html do 
+      format.html do
          if @project.repo_exists? && @project.has_commits?
            render :show
          else
@@ -100,7 +105,6 @@ class ProjectsController < ApplicationController
   end
 
   def graph
-    render_full_content
     @days_json, @commits_json = GraphCommit.to_graph(project)
   end
 

@@ -13,20 +13,19 @@
   %li{:class => "#{branches_tab_class}"}
     = link_to project_repository_path(@project) do 
       Branches
-      %span.number= @project.repo.branches.count
+      %span.number= @project.repo.branch_count
 
   %li{:class => "#{'active' if current_page?(tags_project_repository_path(@project)) }"}
     = link_to tags_project_repository_path(@project) do 
       Tags
-      %span.number= @project.repo.tags.count
+      %span.number= @project.repo.tag_count
 
 
   - if current_page?(project_commits_path(@project)) && current_user.private_token
     %li.right
-      %span
-        = link_to project_commits_path(@project, :atom, { :private_token => current_user.private_token, :ref => @ref }), :class => "btn" do 
-          feed
-          = image_tag "Rss-UI.PNG", :width => 14, :title => "feed"
+      %span.rss-icon
+        = link_to project_commits_path(@project, :atom, { :private_token => current_user.private_token, :ref => @ref }), :title  => "Feed" do 
+          = image_tag "rss_ui.png", :title => "feed"
 
 
 :javascript

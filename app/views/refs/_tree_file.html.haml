@@ -13,7 +13,7 @@
       #tree-readme-holder
         .readme
           = preserve do
-            = markdown(file.data.force_encoding('UTF-8'))
+            = markdown(file.data)
     - else
       .view_file_content
         - unless file.empty?
@@ -29,7 +29,7 @@
   - else
     %center
       = link_to blob_project_ref_path(@project, @ref, :path => params[:path]) do
-        %div
+        %div.padded
           %br
           = image_tag "download.png", :width => 64
           %h3
