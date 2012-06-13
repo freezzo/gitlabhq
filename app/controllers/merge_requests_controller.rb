@@ -63,7 +63,7 @@ class MergeRequestsController < ApplicationController
   end
 
   def new
-    @merge_request = @project.merge_requests.new
+    @merge_request = @project.merge_requests.new(params[:merge_request])
   end
 
   def edit
@@ -73,29 +73,21 @@ class MergeRequestsController < ApplicationController
     @merge_request = @project.merge_requests.new(params[:merge_request])
     @merge_request.author = current_user
 
-    respond_to do |format|
-      if @merge_request.save
-        @merge_request.reload_code
-        format.html { redirect_to [@project, @merge_request], notice: 'Merge request was successfully created.' }
-        format.json { render json: @merge_request, status: :created, location: @merge_request }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @merge_request.errors, status: :unprocessable_entity }
-      end
+    if @merge_request.save
+      @merge_request.reload_code
+      redirect_to [@project, @merge_request], notice: 'Merge request was successfully created.'
+    else
+      render action: "new" 
     end
   end
 
   def update
-    respond_to do |format|
-      if @merge_request.update_attributes(params[:merge_request].merge(:author_id_of_changes => current_user.id))
-        @merge_request.reload_code
-        @merge_request.mark_as_unchecked
-        format.html { redirect_to [@project, @merge_request], notice: 'Merge request was successfully updated.' }
-        format.json { head :ok }
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @merge_request.errors, status: :unprocessable_entity }
-      end
+    if @merge_request.update_attributes(params[:merge_request].merge(:author_id_of_changes => current_user.id))
+      @merge_request.reload_code
+      @merge_request.mark_as_unchecked
+      redirect_to [@project, @merge_request], notice: 'Merge request was successfully updated.'
+    else
+      render action: "edit"
     end
   end
 
@@ -109,6 +101,7 @@ class MergeRequestsController < ApplicationController
   def automerge
     return access_denied! unless can?(current_user, :accept_mr, @project)
     if @merge_request.open? && @merge_request.can_be_merged?
+      @merge_request.should_remove_source_branch = params[:should_remove_source_branch]
       @merge_request.automerge!(current_user)
       @status = true
     else
@@ -121,7 +114,6 @@ class MergeRequestsController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to project_merge_requests_url(@project) }
-      format.json { head :ok }
     end
   end
 

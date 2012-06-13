@@ -64,22 +64,41 @@ $hover: #FDF5D9;
   border-radius: $radius;
 }
 
+
+
+/**
+ * Header of application. 
+ * Contain application logo, search panel, profile icon
+ */
+@import "header.scss";
+
+/**
+ * Navigation menu of application. 
+ * Panel with links to pages depends on project, profile or admin area
+ */
+@import "nav.scss";
+
 /**
  * This file represent some UI that can be changed 
  * during web app restyle or theme select. 
  * 
  * Next items should be placed there
- * - link colors
- * - header styles
- * - main menu styles
+ * - link, button colors
+ * - header restyles
+ * - main menu restyles
  *
  */
-@import "ui_basic.scss";
+@import "themes/ui_basic.scss";
 
 /**
  * UI mars theme
  */
-@import "ui_mars.scss";
+@import "themes/ui_mars.scss";
+
+/**
+ * UI Modern theme
+ */
+@import "themes/ui_modern.scss";
 
 /**
  * Gitlab bootstrap.
@@ -98,20 +117,15 @@ $hover: #FDF5D9;
  */
 @import "common.scss";
 
+
 /**
- * Styles related to displaying commits
+ * Styles related to specific part of app
  */
 @import "sections/commits.scss";
-
-/**
- * Styles related to displaying issues
- */
 @import "sections/issues.scss";
-
-/**
- * Styles related to projects
- */
 @import "sections/projects.scss";
+@import "sections/merge_requests.scss";
+@import "sections/graph.scss";
 
 /**
  * This scss file redefine chozen selectbox styles for

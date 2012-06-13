@@ -60,8 +60,9 @@ module ApplicationHelper
   def search_autocomplete_source
     projects = current_user.projects.map{ |p| { :label => p.name, :url => project_path(p) } }
     default_nav = [
+      { :label => "Profile", :url => profile_path },
       { :label => "Keys", :url => keys_path },
-      { :label => "Projects", :url => projects_path },
+      { :label => "Dashboard", :url => root_path },
       { :label => "Admin", :url => admin_root_path }
     ]
 
@@ -85,11 +86,6 @@ module ApplicationHelper
   end
 
   def app_theme
-    if current_user && current_user.theme_id == 1
-      "ui_basic"
-    else
-      "ui_mars"
-    end
+    Gitlab::Theme.css_class_by_id(current_user.try(:theme_id))
   end
-
 end

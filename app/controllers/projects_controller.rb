@@ -10,17 +10,6 @@ class ProjectsController < ApplicationController
   before_filter :authorize_admin_project!, :only => [:edit, :update, :destroy]
   before_filter :require_non_empty_project, :only => [:blob, :tree, :graph]
 
-  def index
-    @projects = current_user.projects.includes(:events).order("events.created_at DESC")
-    @projects = @projects.page(params[:page]).per(40)
-    @events = Event.where(:project_id => current_user.projects.map(&:id)).recent.limit(20)
-
-    respond_to do |format|
-      format.html
-      format.atom { render :layout => false }
-    end
-  end
-
   def new
     @project = Project.new
   end
@@ -29,17 +18,7 @@ class ProjectsController < ApplicationController
   end
 
   def create
-    @project = Project.new(params[:project])
-    @project.owner = current_user
-
-    Project.transaction do
-      @project.save!
-      @project.users_projects.create!(:project_access => UsersProject::MASTER, :user => current_user)
-
-      # when project saved no team member exist so
-      # project repository should be updated after first user add
-      @project.update_repository
-    end
+    @project = Project.create_by_user(params[:project], current_user)
 
     respond_to do |format|
       if @project.valid?
@@ -79,6 +58,7 @@ class ProjectsController < ApplicationController
     respond_to do |format|
       format.html do
          if @project.repo_exists? && @project.has_commits?
+           @last_push = current_user.recent_push(@project.id)
            render :show
          else
            render "projects/empty"

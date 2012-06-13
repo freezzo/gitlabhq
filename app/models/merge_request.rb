@@ -1,6 +1,8 @@
 require File.join(Rails.root, "app/models/commit")
 
 class MergeRequest < ActiveRecord::Base
+  include Upvote
+
   UNCHECKED = 1
   CAN_BE_MERGED = 2
   CANNOT_BE_MERGED = 3
@@ -14,7 +16,8 @@ class MergeRequest < ActiveRecord::Base
   serialize :st_diffs
 
   attr_protected :author, :author_id, :project, :project_id
-  attr_accessor :author_id_of_changes
+  attr_accessor :author_id_of_changes,
+                :should_remove_source_branch
 
   validates_presence_of :project_id
   validates_presence_of :assignee_id
@@ -127,12 +130,6 @@ class MergeRequest < ActiveRecord::Base
     self.project.events.where(:target_id => self.id, :target_type => "MergeRequest", :action => Event::Closed).last
   end
 
-
-  # Return the number of +1 comments (upvotes)
-  def upvotes
-    notes.select(&:upvote?).size
-  end
-
   def commits
     st_commits || []
   end
@@ -188,7 +185,7 @@ class MergeRequest < ActiveRecord::Base
       self.merge!(current_user.id)
       true
     end
-  rescue 
+  rescue
     self.mark_as_unmergable
     false
   end
