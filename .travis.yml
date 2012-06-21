@@ -3,12 +3,12 @@ env:
   - DB=sqlite
 before_install:
   - sudo apt-get install libicu-dev -y
+  - gem install charlock_holmes -v="0.6.8"
   - echo "yes" | gem uninstall json ffi
 branches:
   only:
     - 'master'
 rvm:
-  - 1.9.2
   - 1.9.3
 before_script:
   - "cp config/database.yml.$DB config/database.yml"
