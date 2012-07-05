@@ -52,9 +52,14 @@ RSpec.configure do |config|
     DatabaseCleaner.start
 
     WebMock.disable_net_connect!(allow_localhost: true)
+    ActiveRecord::Base.observers.disable :all
   end
 
   config.after do
     DatabaseCleaner.clean
   end
+
+  config.include RSpec::Rails::RequestExampleGroup, :type => :request, :example_group => {
+    :file_path => /spec\/api/
+  }
 end

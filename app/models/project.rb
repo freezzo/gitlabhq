@@ -13,7 +13,7 @@ class Project < ActiveRecord::Base
   has_many :users,          :through => :users_projects
   has_many :events,         :dependent => :destroy
   has_many :merge_requests, :dependent => :destroy
-  has_many :issues,         :dependent => :destroy, :order => "position"
+  has_many :issues,         :dependent => :destroy, :order => "closed, created_at DESC"
   has_many :milestones,     :dependent => :destroy
   has_many :users_projects, :dependent => :destroy
   has_many :notes,          :dependent => :destroy
@@ -48,7 +48,7 @@ class Project < ActiveRecord::Base
     Project.transaction do
       project.owner = user
 
-      project.save!
+      return project unless project.save
 
       # Add user as project master
       project.users_projects.create!(:project_access => UsersProject::MASTER, :user => user)
@@ -72,8 +72,8 @@ class Project < ActiveRecord::Base
   validates :path,
             :uniqueness => true,
             :presence => true,
-            :format => { :with => /^[a-zA-Z0-9_\-\.]*$/,
-                         :message => "only letters, digits & '_' '-' '.' allowed" },
+            :format => { :with => /^[a-zA-Z][a-zA-Z0-9_\-\.]*$/,
+                         :message => "only letters, digits & '_' '-' '.' allowed. Letter should be first" },
             :length   => { :within => 0..255 }
 
   validates :description,
@@ -82,8 +82,8 @@ class Project < ActiveRecord::Base
   validates :code,
             :presence => true,
             :uniqueness => true,
-            :format => { :with => /^[a-zA-Z0-9_\-\.]*$/,
-                         :message => "only letters, digits & '_' '-' '.' allowed"  },
+            :format => { :with => /^[a-zA-Z][a-zA-Z0-9_\-\.]*$/,
+                         :message => "only letters, digits & '_' '-' '.' allowed. Letter should be first"  },
             :length   => { :within => 1..255 }
 
   validates :owner, :presence => true
@@ -113,7 +113,7 @@ class Project < ActiveRecord::Base
   end
 
   def web_url
-    [GIT_HOST['host'], code].join("/")
+    [Gitlab.config.url, code].join("/")
   end
 
   def common_notes
@@ -161,19 +161,19 @@ end
 #
 # Table name: projects
 #
-#  id                     :integer         not null, primary key
+#  id                     :integer(4)      not null, primary key
 #  name                   :string(255)
 #  path                   :string(255)
 #  description            :text
-#  created_at             :datetime
-#  updated_at             :datetime
-#  private_flag           :boolean         default(TRUE), not null
+#  created_at             :datetime        not null
+#  updated_at             :datetime        not null
+#  private_flag           :boolean(1)      default(TRUE), not null
 #  code                   :string(255)
-#  owner_id               :integer
+#  owner_id               :integer(4)
 #  default_branch         :string(255)     default("master"), not null
-#  issues_enabled         :boolean         default(TRUE), not null
-#  wall_enabled           :boolean         default(TRUE), not null
-#  merge_requests_enabled :boolean         default(TRUE), not null
-#  wiki_enabled           :boolean         default(TRUE), not null
+#  issues_enabled         :boolean(1)      default(TRUE), not null
+#  wall_enabled           :boolean(1)      default(TRUE), not null
+#  merge_requests_enabled :boolean(1)      default(TRUE), not null
+#  wiki_enabled           :boolean(1)      default(TRUE), not null
 #
 

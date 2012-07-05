@@ -4,9 +4,9 @@
     = @milestone.expires_at
 
   %span.right
-    = link_to 'Browse Issues', project_issues_path(@milestone.project, :milestone_id => @milestone.id), :class => "btn edit-milestone-link small"
+    = link_to 'Browse Issues', project_issues_path(@milestone.project, :milestone_id => @milestone.id), :class => "btn edit-milestone-link small grouped"
     - if can?(current_user, :admin_milestone, @project)
-      = link_to edit_project_milestone_path(@project, @milestone), :class => "btn small" do
+      = link_to edit_project_milestone_path(@project, @milestone), :class => "btn small grouped" do
         %i.icon-edit
         Edit
 
@@ -49,8 +49,6 @@
         %tr
           %td
             = link_to [@project, issue] do
-              = image_tag gravatar_icon(issue.assignee_email, 16), :width => "16"
-              &nbsp;
               %span.badge.badge-info ##{issue.id}
               &ndash;
               = truncate issue.title, :length => 60

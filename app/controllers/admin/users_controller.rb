@@ -6,6 +6,7 @@ class Admin::UsersController < ApplicationController
   def index
     @admin_users = User.scoped
     @admin_users = @admin_users.filter(params[:filter])
+    @admin_users = @admin_users.search(params[:name]) if params[:name].present?
     @admin_users = @admin_users.order("updated_at DESC").page(params[:page])
   end
 
@@ -33,7 +34,7 @@ class Admin::UsersController < ApplicationController
 
 
   def new
-    @admin_user = User.new(:projects_limit => 10)
+    @admin_user = User.new(:projects_limit => Gitlab.config.default_projects_limit)
   end
 
   def edit

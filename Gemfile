@@ -10,12 +10,15 @@ gem "mysql2"
 gem "devise", "~> 1.5"
 
 # GITLAB patched libs
-gem "grit",        :git => "https://github.com/gitlabhq/grit.git",            :ref => "7f35cb98ff17d534a07e3ce6ec3d580f67402837"
-gem "gitolite",    :git => "https://github.com/gitlabhq/gitolite-client.git", :ref => "9b715ca8bab6529f6c92204a25f84d12f25a6eb0"
-gem "pygments.rb", :git => "https://github.com/gitlabhq/pygments.rb.git",     :ref => "2cada028da5054616634a1d9ca6941b65b3ce188"
-gem 'yaml_db',     :git => "https://github.com/gitlabhq/yaml_db.git"
+gem "grit",          :git => "https://github.com/gitlabhq/grit.git",            :ref => "7f35cb98ff17d534a07e3ce6ec3d580f67402837"
+gem "gitolite",      :git => "https://github.com/gitlabhq/gitolite-client.git", :ref => "9b715ca8bab6529f6c92204a25f84d12f25a6eb0"
+gem "pygments.rb",   :git => "https://github.com/gitlabhq/pygments.rb.git",     :ref => "2cada028da5054616634a1d9ca6941b65b3ce188"
+gem "omniauth-ldap", :git => "https://github.com/gitlabhq/omniauth-ldap.git",   :ref => "7edf27d0281e09561838122982c16b7e62181f44"
+gem 'yaml_db',       :git => "https://github.com/gitlabhq/yaml_db.git"
+gem 'grack',         :git => "https://github.com/gitlabhq/grack.git"
 gem "linguist", "~> 1.0.0", :git => "https://github.com/gitlabhq/linguist.git"
 
+gem "grape"
 gem "stamp"
 gem "kaminari"
 gem "haml-rails"
@@ -28,28 +31,29 @@ gem "thin"
 gem "unicorn"
 gem "git"
 gem "acts_as_list"
-gem "acts-as-taggable-on", "~> 2.1.0"
+gem "acts-as-taggable-on", "2.3.1"
 gem "drapper"
 gem "resque", "~> 1.20.0"
 gem "httparty"
 gem "charlock_holmes"
 gem "foreman"
-gem "omniauth-ldap"
-gem 'bootstrap-sass', "2.0.3.1"
 gem "colored"
 gem 'resque_mailer'
-gem 'chosen-rails'
-
-gem "jquery-rails",    "2.0.2"
-gem "jquery-ui-rails", "0.5.0"
-gem "modernizr",       "2.5.3"
-gem "graphael-rails",  "0.1.4"
+gem 'tabs_on_rails'
+gem 'settingslogic'
 
 group :assets do
   gem "sass-rails",   "3.2.5"
   gem "coffee-rails", "3.2.2"
   gem "uglifier",     "1.0.3"
   gem "therubyracer"
+
+  gem 'chosen-rails'
+  gem "jquery-rails",     "2.0.2"
+  gem "jquery-ui-rails",  "0.5.0"
+  gem "modernizr",        "2.5.3"
+  gem "raphael-rails",    "1.5.2"
+  gem 'bootstrap-sass',   "2.0.3.1"
 end
 
 group :development do
@@ -77,6 +81,7 @@ group :test do
   gem "simplecov", :require => false
   gem "shoulda-matchers"
   gem 'email_spec'
+  gem 'resque_spec'
 end
 
 group :production do

@@ -46,7 +46,7 @@ describe Project do
 
   it "should return valid url to repo" do
     project = Project.new(:path => "somewhere")
-    project.url_to_repo.should == "git@localhost:somewhere.git"
+    project.url_to_repo.should == Gitlab.config.ssh_path + "somewhere.git"
   end
 
   it "should return path to repo" do
@@ -56,7 +56,7 @@ describe Project do
 
   it "returns the full web URL for this repo" do
     project = Project.new(:code => "somewhere")
-    project.web_url.should == "#{GIT_HOST['host']}/somewhere"
+    project.web_url.should == "#{Gitlab.config.url}/somewhere"
   end
 
   describe :valid_repo? do
@@ -72,16 +72,29 @@ describe Project do
   end
 
   describe "last_activity" do
-    let(:project) { Factory :project }
+    let(:project)    { Factory :project }
+    let(:last_event) { double }
 
     before do
-      @issue = Factory :issue, :project => project
+      project.stub(:events).and_return( [ double, double, last_event ] )
     end
 
-    it { project.last_activity.should == Event.last }
-    it { project.last_activity_date.to_s.should == Event.last.created_at.to_s }
+    it { project.last_activity.should == last_event }
   end
 
+  describe 'last_activity_date' do
+    let(:project)    { Factory :project }
+
+    it 'returns the creation date of the project\'s last event if present' do
+      last_event = double(:created_at => 'now')
+      project.stub(:events).and_return( [double, double, last_event] )
+      project.last_activity_date.should == last_event.created_at
+    end
+
+    it 'returns the project\'s last update date if it has no events' do
+      project.last_activity_date.should == project.updated_at
+    end
+  end
   describe "fresh commits" do
     let(:project) { Factory :project }
 
@@ -193,19 +206,19 @@ end
 #
 # Table name: projects
 #
-#  id                     :integer         not null, primary key
+#  id                     :integer(4)      not null, primary key
 #  name                   :string(255)
 #  path                   :string(255)
 #  description            :text
-#  created_at             :datetime
-#  updated_at             :datetime
-#  private_flag           :boolean         default(TRUE), not null
+#  created_at             :datetime        not null
+#  updated_at             :datetime        not null
+#  private_flag           :boolean(1)      default(TRUE), not null
 #  code                   :string(255)
-#  owner_id               :integer
+#  owner_id               :integer(4)
 #  default_branch         :string(255)     default("master"), not null
-#  issues_enabled         :boolean         default(TRUE), not null
-#  wall_enabled           :boolean         default(TRUE), not null
-#  merge_requests_enabled :boolean         default(TRUE), not null
-#  wiki_enabled           :boolean         default(TRUE), not null
+#  issues_enabled         :boolean(1)      default(TRUE), not null
+#  wall_enabled           :boolean(1)      default(TRUE), not null
+#  merge_requests_enabled :boolean(1)      default(TRUE), not null
+#  wiki_enabled           :boolean(1)      default(TRUE), not null
 #
 

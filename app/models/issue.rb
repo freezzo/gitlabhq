@@ -1,6 +1,8 @@
 class Issue < ActiveRecord::Base
   include Upvote
 
+  acts_as_taggable_on :labels
+
   belongs_to :project
   belongs_to :milestone
   belongs_to :author, :class_name => "User"
@@ -11,7 +13,6 @@ class Issue < ActiveRecord::Base
   attr_accessor :author_id_of_changes
 
   validates_presence_of :project_id
-  validates_presence_of :assignee_id
   validates_presence_of :author_id
 
   delegate :name,
@@ -22,17 +23,15 @@ class Issue < ActiveRecord::Base
   delegate :name,
            :email,
            :to => :assignee,
+           :allow_nil => true,
            :prefix => true
 
   validates :title,
             :presence => true,
             :length   => { :within => 0..255 }
-            
+
   validates :description,
             :length   => { :within => 0..2000 }
-
-  scope :critical, where(:critical => true)
-  scope :non_critical, where(:critical => false)
 
   scope :opened, where(:closed => false)
   scope :closed, where(:closed => true)
@@ -55,22 +54,39 @@ class Issue < ActiveRecord::Base
   def new?
     today? && created_at == updated_at
   end
+
+  def is_assigned?
+    !!assignee_id
+  end
+
+  def is_being_reassigned?
+    assignee_id_changed?
+  end
+
+  def is_being_closed?
+    closed_changed? && closed
+  end
+
+  def is_being_reopened?
+    closed_changed? && !closed
+  end
 end
 # == Schema Information
 #
 # Table name: issues
 #
-#  id          :integer         not null, primary key
-#  title       :string(255)
-#  description :text
-#  assignee_id :integer
-#  author_id   :integer
-#  project_id  :integer
-#  created_at  :datetime
-#  updated_at  :datetime
-#  closed      :boolean         default(FALSE), not null
-#  position    :integer         default(0)
-#  critical    :boolean         default(FALSE), not null
-#  branch_name :string(255)
+#  id           :integer(4)      not null, primary key
+#  title        :string(255)
+#  assignee_id  :integer(4)
+#  author_id    :integer(4)
+#  project_id   :integer(4)
+#  created_at   :datetime        not null
+#  updated_at   :datetime        not null
+#  closed       :boolean(1)      default(FALSE), not null
+#  position     :integer(4)      default(0)
+#  critical     :boolean(1)      default(FALSE), not null
+#  branch_name  :string(255)
+#  description  :text
+#  milestone_id :integer(4)
 #
 

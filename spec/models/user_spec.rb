@@ -22,6 +22,24 @@ describe User do
     user.identifier.should == "test_mail_com"
   end
 
+  it "should execute callback when force_random_password specified" do
+    user = User.new(:email => "test@mail.com", :force_random_password => true)
+    user.should_receive(:generate_password)
+    user.save
+  end
+
+  it "should not generate password by default" do
+    user = Factory(:user, :password => 'abcdefg', :password_confirmation => 'abcdefg')
+    user.password.should == 'abcdefg'
+  end
+
+  it "should generate password when forcing random password" do
+    Devise.stub(:friendly_token).and_return('123456789')
+    user = User.create(:email => "test1@mail.com", :force_random_password => true)
+    user.password.should == user.password_confirmation
+    user.password.should == '12345678'
+  end
+
   it "should have authentication token" do
     user = Factory(:user)
     user.authentication_token.should_not == ""
@@ -46,25 +64,29 @@ end
 #
 # Table name: users
 #
-#  id                     :integer         not null, primary key
+#  id                     :integer(4)      not null, primary key
 #  email                  :string(255)     default(""), not null
 #  encrypted_password     :string(128)     default(""), not null
 #  reset_password_token   :string(255)
 #  reset_password_sent_at :datetime
 #  remember_created_at    :datetime
-#  sign_in_count          :integer         default(0)
+#  sign_in_count          :integer(4)      default(0)
 #  current_sign_in_at     :datetime
 #  last_sign_in_at        :datetime
 #  current_sign_in_ip     :string(255)
 #  last_sign_in_ip        :string(255)
-#  created_at             :datetime
-#  updated_at             :datetime
+#  created_at             :datetime        not null
+#  updated_at             :datetime        not null
 #  name                   :string(255)
-#  admin                  :boolean         default(FALSE), not null
-#  projects_limit         :integer         default(10)
+#  admin                  :boolean(1)      default(FALSE), not null
+#  projects_limit         :integer(4)      default(10)
 #  skype                  :string(255)     default(""), not null
 #  linkedin               :string(255)     default(""), not null
 #  twitter                :string(255)     default(""), not null
 #  authentication_token   :string(255)
-#  dark_scheme            :boolean         default(FALSE), not null
+#  dark_scheme            :boolean(1)      default(FALSE), not null
+#  theme_id               :integer(4)      default(1), not null
+#  bio                    :string(255)
+#  blocked                :boolean(1)      default(FALSE), not null
 #
+

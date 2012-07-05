@@ -1,4 +1,4 @@
-%h3
+%h3.page_title
   Merge Requests
   - if can? current_user, :write_issue, @project
     = link_to new_project_merge_request_path(@project), :class => "right btn small", :title => "New Merge Request" do
@@ -6,19 +6,6 @@
 
 %br
 
-.mrs_legend
-  .list_legend
-    .icon.today
-    .text Today
-
-  .list_legend
-    .icon.merged
-    .text Merged
-
-  .list_legend
-    .icon.closed
-    .text Closed
-.clearfix
 
 .ui-box
   .title

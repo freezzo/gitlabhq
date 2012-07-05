@@ -4,9 +4,21 @@ Gitlab::Application.routes.draw do
   #
   get 'search' => "search#show"
 
+  # API
+  require 'api'
+  mount Gitlab::API => '/api'
+
   # Optionally, enable Resque here
   require 'resque/server'
   mount Resque::Server.new, at: '/info/resque'
+
+  # Enable Grack support
+  mount Grack::Bundle.new({
+    git_path:     Gitlab.config.git_bin_path,
+    project_root: Gitlab.config.git_base_path,
+    upload_pack:  Gitlab.config.git_upload_pack,
+    receive_pack: Gitlab.config.git_receive_pack
+  }), at: '/:path', constraints: { path: /[\w-]+\.git/ }
 
   #
   # Help
@@ -20,15 +32,15 @@ Gitlab::Application.routes.draw do
   # Admin Area
   #
   namespace :admin do
-    resources :users do 
-      member do 
+    resources :users do
+      member do
         put :team_update
         put :block
         put :unblock
       end
     end
-    resources :projects, :constraints => { :id => /[^\/]+/ } do 
-      member do 
+    resources :projects, :constraints => { :id => /[^\/]+/ } do
+      member do
         get :team
         put :team_update
       end
@@ -38,6 +50,7 @@ Gitlab::Application.routes.draw do
     get 'mailer/preview_note'
     get 'mailer/preview_user_new'
     get 'mailer/preview_issue_new'
+    resource :resque, :controller => 'resque'
     root :to => "dashboard#index"
   end
 
@@ -79,12 +92,12 @@ Gitlab::Application.routes.draw do
 
     resources :wikis, :only => [:show, :edit, :destroy, :create] do
       member do
-        get "history"        
+        get "history"
       end
     end
 
-    resource :repository do 
-      member do 
+    resource :repository do
+      member do
         get "branches"
         get "tags"
         get "archive"
@@ -94,14 +107,14 @@ Gitlab::Application.routes.draw do
     resources :deploy_keys
     resources :protected_branches, :only => [:index, :create, :destroy]
 
-    resources :refs, :only => [], :path => "/" do 
-      collection do 
+    resources :refs, :only => [], :path => "/" do
+      collection do
         get "switch"
       end
 
-      member do 
+      member do
         get "tree", :constraints => { :id => /[a-zA-Z.\/0-9_\-]+/ }
-        get "blob", 
+        get "blob",
           :constraints => {
             :id => /[a-zA-Z.0-9\/_\-]+/,
             :path => /.*/
@@ -126,33 +139,38 @@ Gitlab::Application.routes.draw do
       end
     end
 
-    resources :merge_requests do 
-      member do 
+    resources :merge_requests do
+      member do
         get :diffs
         get :automerge
         get :automerge_check
+        get :raw
       end
 
-      collection do 
+      collection do
         get :branch_from
         get :branch_to
       end
     end
-    
-    resources :snippets do 
-      member do 
+
+    resources :snippets do
+      member do
         get "raw"
       end
     end
 
-    resources :hooks, :only => [:index, :create, :destroy] do 
-      member do 
+    resources :hooks, :only => [:index, :create, :destroy] do
+      member do
         get :test
       end
     end
-    resources :commits do 
-      collection do 
+    resources :commits do
+      collection do
         get :compare
+      end
+
+      member do
+        get :patch
       end
     end
     resources :team_members
