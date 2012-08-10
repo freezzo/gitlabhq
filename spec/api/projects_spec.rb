@@ -25,10 +25,22 @@ describe Gitlab::API do
 
   describe "GET /projects/:id" do
     it "should return a project by id" do
-      get "#{api_prefix}/projects/#{project.code}?private_token=#{user.private_token}"
+      get "#{api_prefix}/projects/#{project.id}?private_token=#{user.private_token}"
       response.status.should == 200
       json_response['name'].should == project.name
       json_response['owner']['email'].should == user.email
+    end
+
+    it "should return a project by code name" do
+      get "#{api_prefix}/projects/#{project.code}?private_token=#{user.private_token}"
+      response.status.should == 200
+      json_response['name'].should == project.name
+    end
+
+    it "should return a 404 error if not found" do
+      get "#{api_prefix}/projects/42?private_token=#{user.private_token}"
+      response.status.should == 404
+      json_response['message'].should == '404 Not found'
     end
   end
 
@@ -38,6 +50,16 @@ describe Gitlab::API do
       response.status.should == 200
       json_response.should be_an Array
       json_response.first['name'].should == project.repo.heads.sort_by(&:name).first.name
+    end
+  end
+
+  describe "GET /projects/:id/repository/branches/:branch" do
+    it "should return the branch information for a single branch" do
+      get "#{api_prefix}/projects/#{project.code}/repository/branches/new_design?private_token=#{user.private_token}"
+      response.status.should == 200
+
+      json_response['name'].should == 'new_design'
+      json_response['commit']['id'].should == '621491c677087aa243f165eab467bfdfbee00be1'
     end
   end
 
@@ -78,10 +100,10 @@ describe Gitlab::API do
   end
 
   describe "DELETE /projects/:id/snippets/:snippet_id" do
-    it "should create a new project snippet" do
+    it "should delete existing project snippet" do
       expect {
         delete "#{api_prefix}/projects/#{project.code}/snippets/#{snippet.id}?private_token=#{user.private_token}"
-      }.should change { Snippet.count }.by(-1)
+      }.to change { Snippet.count }.by(-1)
     end
   end
 
@@ -89,6 +111,26 @@ describe Gitlab::API do
     it "should get a raw project snippet" do
       get "#{api_prefix}/projects/#{project.code}/snippets/#{snippet.id}/raw?private_token=#{user.private_token}"
       response.status.should == 200
+    end
+  end
+
+  describe "GET /projects/:id/:sha/blob" do
+    it "should get the raw file contents" do
+      get "#{api_prefix}/projects/#{project.code}/repository/commits/master/blob?filepath=README.md&private_token=#{user.private_token}"
+      
+      response.status.should == 200
+    end
+
+    it "should return 404 for invalid branch_name" do
+      get "#{api_prefix}/projects/#{project.code}/repository/commits/invalid_branch_name/blob?filepath=README.md&private_token=#{user.private_token}"
+      
+      response.status.should == 404
+    end
+
+    it "should return 404 for invalid file" do
+      get "#{api_prefix}/projects/#{project.code}/repository/commits/master/blob?filepath=README.invalid&private_token=#{user.private_token}"
+      
+      response.status.should == 404
     end
   end
 end

@@ -16,53 +16,61 @@ module Gitlab
       # Get a single project
       #
       # Parameters:
-      #   id (required) - The code of a project
+      #   id (required) - The ID or code name of a project
       # Example Request:
       #   GET /projects/:id
       get ":id" do
-        @project = current_user.projects.find_by_code(params[:id])
-        present @project, :with => Entities::Project
+        present user_project, :with => Entities::Project
       end
 
       # Get a project repository branches
       #
       # Parameters:
-      #   id (required) - The code of a project
+      #   id (required) - The ID or code name of a project
       # Example Request:
       #   GET /projects/:id/repository/branches
       get ":id/repository/branches" do
-        @project = current_user.projects.find_by_code(params[:id])
-        present @project.repo.heads.sort_by(&:name), :with => Entities::ProjectRepositoryBranches
+        present user_project.repo.heads.sort_by(&:name), :with => Entities::RepoObject
+      end
+
+      # Get a single branch
+      #
+      # Parameters:
+      #   id (required) - The ID or code name of a project
+      #   branch (required) - The name of the branch
+      # Example Request:
+      #   GET /projects/:id/repository/branches/:branch
+      get ":id/repository/branches/:branch" do
+        @branch = user_project.repo.heads.find { |item| item.name == params[:branch] }
+        present @branch, :with => Entities::RepoObject
       end
 
       # Get a project repository tags
       #
       # Parameters:
-      #   id (required) - The code of a project
+      #   id (required) - The ID or code name of a project
       # Example Request:
       #   GET /projects/:id/repository/tags
       get ":id/repository/tags" do
-        @project = current_user.projects.find_by_code(params[:id])
-        present @project.repo.tags.sort_by(&:name).reverse, :with => Entities::ProjectRepositoryTags
+        present user_project.repo.tags.sort_by(&:name).reverse, :with => Entities::RepoObject
       end
 
       # Get a project snippet
       #
       # Parameters:
-      #   id (required) - The code of a project
+      #   id (required) - The ID or code name of a project
       #   snippet_id (required) - The ID of a project snippet
       # Example Request:
       #   GET /projects/:id/snippets/:snippet_id
       get ":id/snippets/:snippet_id" do
-        @project = current_user.projects.find_by_code(params[:id])
-        @snippet = @project.snippets.find(params[:snippet_id])
+        @snippet = user_project.snippets.find(params[:snippet_id])
         present @snippet, :with => Entities::ProjectSnippet
       end
 
       # Create a new project snippet
       #
       # Parameters:
-      #   id (required) - The code name of a project
+      #   id (required) - The ID or code name of a project
       #   title (required) - The title of a snippet
       #   file_name (required) - The name of a snippet file
       #   lifetime (optional) - The expiration date of a snippet
@@ -70,8 +78,7 @@ module Gitlab
       # Example Request:
       #   POST /projects/:id/snippets
       post ":id/snippets" do
-        @project = current_user.projects.find_by_code(params[:id])
-        @snippet = @project.snippets.new(
+        @snippet = user_project.snippets.new(
           :title      => params[:title],
           :file_name  => params[:file_name],
           :expires_at => params[:lifetime],
@@ -89,7 +96,7 @@ module Gitlab
       # Update an existing project snippet
       #
       # Parameters:
-      #   id (required) - The code name of a project
+      #   id (required) - The ID or code name of a project
       #   snippet_id (required) - The ID of a project snippet
       #   title (optional) - The title of a snippet
       #   file_name (optional) - The name of a snippet file
@@ -98,8 +105,7 @@ module Gitlab
       # Example Request:
       #   PUT /projects/:id/snippets/:snippet_id
       put ":id/snippets/:snippet_id" do
-        @project = current_user.projects.find_by_code(params[:id])
-        @snippet = @project.snippets.find(params[:snippet_id])
+        @snippet = user_project.snippets.find(params[:snippet_id])
         parameters = {
           :title      => (params[:title] || @snippet.title),
           :file_name  => (params[:file_name] || @snippet.file_name),
@@ -117,28 +123,55 @@ module Gitlab
       # Delete a project snippet
       #
       # Parameters:
-      #   id (required) - The code of a project
+      #   id (required) - The ID or code name of a project
       #   snippet_id (required) - The ID of a project snippet
       # Example Request:
       #   DELETE /projects/:id/snippets/:snippet_id
       delete ":id/snippets/:snippet_id" do
-        @project = current_user.projects.find_by_code(params[:id])
-        @snippet = @project.snippets.find(params[:snippet_id])
+        @snippet = user_project.snippets.find(params[:snippet_id])
         @snippet.destroy
       end
 
       # Get a raw project snippet
       #
       # Parameters:
-      #   id (required) - The code of a project
+      #   id (required) - The ID or code name of a project
       #   snippet_id (required) - The ID of a project snippet
       # Example Request:
       #   GET /projects/:id/snippets/:snippet_id/raw
       get ":id/snippets/:snippet_id/raw" do
-        @project = current_user.projects.find_by_code(params[:id])
-        @snippet = @project.snippets.find(params[:snippet_id])
+        @snippet = user_project.snippets.find(params[:snippet_id])
+        content_type 'text/plain'
         present @snippet.content
       end
+
+      # Get a raw file contents
+      #
+      # Parameters:
+      #   id (required) - The ID or code name of a project
+      #   sha (required) - The commit or branch name
+      #   filepath (required) - The path to the file to display
+      # Example Request:
+      #   GET /projects/:id/repository/commits/:sha/blob
+      get ":id/repository/commits/:sha/blob" do
+        ref = params[:sha]
+
+        commit = user_project.commit ref
+        error!('404 Commit Not Found', 404) unless commit
+
+        tree = Tree.new commit.tree, user_project, ref, params[:filepath]
+        error!('404 File Not Found', 404) unless tree.try(:tree)
+
+        if tree.text?
+          encoding = Gitlab::Encode.detect_encoding(tree.data)
+          content_type encoding ? "text/plain; charset=#{encoding}" : "text/plain"
+        else
+          content_type tree.mime_type
+        end
+
+        present tree.data
+      end
+
     end
   end
 end

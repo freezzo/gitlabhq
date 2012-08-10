@@ -1,52 +1,23 @@
 require File.join(Rails.root, "app/models/commit")
 
 class MergeRequest < ActiveRecord::Base
+  include IssueCommonality
   include Upvote
+
+  BROKEN_DIFF = "--broken-diff"
 
   UNCHECKED = 1
   CAN_BE_MERGED = 2
   CANNOT_BE_MERGED = 3
 
-  belongs_to :project
-  belongs_to :author, :class_name => "User"
-  belongs_to :assignee, :class_name => "User"
-  has_many :notes, :as => :noteable, :dependent => :destroy
-
   serialize :st_commits
   serialize :st_diffs
 
-  attr_protected :author, :author_id, :project, :project_id
-  attr_accessor :author_id_of_changes,
-                :should_remove_source_branch
+  attr_accessor :should_remove_source_branch
 
-  validates_presence_of :project_id
-  validates_presence_of :assignee_id
-  validates_presence_of :author_id
   validates_presence_of :source_branch
   validates_presence_of :target_branch
   validate :validate_branches
-
-  delegate :name,
-           :email,
-           :to => :author,
-           :prefix => true
-
-  delegate :name,
-           :email,
-           :to => :assignee,
-           :prefix => true
-
-  validates :title,
-            :presence => true,
-            :length   => { :within => 0..255 }
-
-  scope :opened, where(:closed => false)
-  scope :closed, where(:closed => true)
-  scope :assigned, lambda { |u| where(:assignee_id => u.id)}
-
-  def self.search query
-    where("title like :query", :query => "%#{query}%")
-  end
 
   def self.find_all_by_branch(branch_name)
     where("source_branch like :branch or target_branch like :branch", :branch => branch_name)
@@ -93,14 +64,6 @@ class MergeRequest < ActiveRecord::Base
     self.save
   end
 
-  def today?
-    Date.today == created_at.to_date
-  end
-
-  def new?
-    today? && created_at == updated_at
-  end
-
   def diffs
     st_diffs || []
   end
@@ -108,9 +71,20 @@ class MergeRequest < ActiveRecord::Base
   def reloaded_diffs
     if open? && unmerged_diffs.any?
       self.st_diffs = unmerged_diffs
-      save
+      self.save
     end
-    diffs
+
+  rescue Grit::Git::GitTimeout
+    self.st_diffs = [BROKEN_DIFF]
+    self.save
+  end
+
+  def broken_diffs?
+    diffs == [BROKEN_DIFF]
+  end
+
+  def valid_diffs?
+    !broken_diffs?
   end
 
   def unmerged_diffs
@@ -122,7 +96,7 @@ class MergeRequest < ActiveRecord::Base
     commits.first
   end
 
-  def merged? 
+  def merged?
     merged && merge_event
   end
 
@@ -139,7 +113,7 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def probably_merged?
-    unmerged_commits.empty? && 
+    unmerged_commits.empty? &&
       commits.any? && open?
   end
 
@@ -157,8 +131,8 @@ class MergeRequest < ActiveRecord::Base
     self.update_attributes :state => CANNOT_BE_MERGED
   end
 
-  def reloaded_commits 
-    if open? && unmerged_commits.any? 
+  def reloaded_commits
+    if open? && unmerged_commits.any?
       self.st_commits = unmerged_commits
       save
     end

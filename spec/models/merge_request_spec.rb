@@ -13,7 +13,6 @@ describe MergeRequest do
     it { should validate_presence_of(:title) }
     it { should validate_presence_of(:author_id) }
     it { should validate_presence_of(:project_id) }
-    it { should validate_presence_of(:assignee_id) }
   end
 
   describe "Scope" do
@@ -55,6 +54,15 @@ describe MergeRequest do
       subject.notes << Factory(:note, note: "+1 This is awesome", project: Factory(:project, path: 'plusone', code: 'plusone'))
       subject.notes << Factory(:note, note: "+1 I want this", project: Factory(:project, path: 'plustwo', code: 'plustwo'))
       subject.upvotes.should == 2
+    end
+  end
+
+  describe ".search" do
+    let!(:issue) { Factory.create(:issue, :title => "Searchable issue",
+                                 :project => Factory.create(:project)) }
+
+    it "matches by title" do
+      Issue.search('able').all.should == [issue]
     end
   end
 end

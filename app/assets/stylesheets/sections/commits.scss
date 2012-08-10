@@ -101,16 +101,19 @@
       margin:50px;
       padding:1px;
       max-width:400px;
-    }
-    &.diff_image_removed { 
-      img {
+
+      &.diff_image_removed {
         border: 1px solid #C00;
+      }
+
+      &.diff_image_added {
+        border: 1px solid #0C0;;
       }
     }
 
-    &.diff_image_added { 
-      img {
-        border: 1px solid #0C0;;
+    &.img_compared { 
+      img { 
+        max-width:300px;
       }
     }
   }
@@ -190,5 +193,17 @@
   .committed_ago { 
     float:right;
     @extend .cgray;
+  }
+
+  code { 
+    background:#FCEEC1;
+    color:$style_color;
+  }
+
+  .commit_short_id { 
+    float:left;
+    @extend .lined;
+    min-width:65px;
+    font-family: 'Menlo', 'Liberation Mono', 'Consolas', 'Courier New', 'andale mono','lucida console',monospace;
   }
 }

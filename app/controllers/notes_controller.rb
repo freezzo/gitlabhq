@@ -15,11 +15,7 @@ class NotesController < ApplicationController
   end
 
   def create
-    @note = @project.notes.new(params[:note])
-    @note.author = current_user
-    @note.notify = true if params[:notify] == '1'
-    @note.notify_author = true if params[:notify_author] == '1'
-    @note.save
+    @note = Notes::CreateContext.new(project, current_user, params).execute
 
     respond_to do |format|
       format.html {redirect_to :back}
@@ -37,28 +33,13 @@ class NotesController < ApplicationController
     end
   end
 
-  protected 
+  def preview
+    render :text => view_context.markdown(params[:note])
+  end
+
+  protected
 
   def notes
-    @notes = case params[:target_type]
-             when "commit" 
-               then project.commit_notes(project.commit((params[:target_id]))).fresh.limit(20)
-             when "snippet"
-               then  project.snippets.find(params[:target_id]).notes
-             when "wall"
-               then project.common_notes.order("created_at DESC").fresh.limit(50)
-             when "issue"
-               then project.issues.find(params[:target_id]).notes.inc_author.order("created_at DESC").limit(20)
-             when "merge_request"
-               then project.merge_requests.find(params[:target_id]).notes.inc_author.order("created_at DESC").limit(20)
-             end
-
-    @notes = if params[:last_id]
-               @notes.where("id > ?", params[:last_id])
-             elsif params[:first_id]
-               @notes.where("id < ?", params[:first_id])
-             else 
-               @notes
-             end
+    @notes = Notes::LoadContext.new(project, current_user, params).execute
   end
 end

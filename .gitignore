@@ -6,6 +6,7 @@ log/*.log
 tmp/
 .sass-cache/
 coverage/*
+backups/*
 *.swp
 public/uploads/
 .rvmrc
@@ -19,3 +20,6 @@ config/database.yml
 config/initializers/omniauth.rb
 config/unicorn.rb
 db/data.yml
+.idea
+.DS_Store
+

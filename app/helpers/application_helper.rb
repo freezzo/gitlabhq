@@ -42,21 +42,6 @@ module ApplicationHelper
     grouped_options_for_select(options, @ref || @project.default_branch)
   end
 
-  def markdown(text)
-    @__renderer ||= Redcarpet::Markdown.new(Redcarpet::Render::GitlabHTML.new(filter_html: true), {
-      no_intra_emphasis: true,
-      tables: true,
-      fenced_code_blocks: true,
-      autolink: true,
-      strikethrough: true,
-      lax_html_blocks: true,
-      space_after_headers: true,
-      superscript: true
-    })
-
-    @__renderer.render(text).html_safe
-  end
-
   def search_autocomplete_source
     projects = current_user.projects.map{ |p| { :label => p.name, :url => project_path(p) } }
     default_nav = [
@@ -127,10 +112,15 @@ module ApplicationHelper
              when :admin_projects; controller.controller_name == "projects"
              when :admin_emails;   controller.controller_name == 'mailer'
              when :admin_resque;   controller.controller_name == 'resque'
+             when :admin_logs;   controller.controller_name == 'logs'
 
              else
                false
              end
     active ? "current" : nil
+  end
+
+  def hexdigest(string)
+    Digest::SHA1.hexdigest string
   end
 end

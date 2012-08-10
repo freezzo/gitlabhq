@@ -4,8 +4,6 @@ class WebHook < ActiveRecord::Base
   # HTTParty timeout
   default_timeout 10
 
-  belongs_to :project
-
   validates :url,
             presence: true,
             format: {
@@ -13,10 +11,18 @@ class WebHook < ActiveRecord::Base
               message: "should be a valid url" }
 
   def execute(data)
-    WebHook.post(url, body: data.to_json, headers: { "Content-Type" => "application/json" })
-  rescue
-    # There was a problem calling this web hook, let's forget about it.
+    parsed_url = URI.parse(url)
+    if parsed_url.userinfo.blank?
+      WebHook.post(url, body: data.to_json, headers: { "Content-Type" => "application/json" })
+    else
+      post_url = url.gsub(parsed_url.userinfo+"@", "")
+      WebHook.post(post_url,
+                   body: data.to_json,
+                   headers: { "Content-Type" => "application/json" }, 
+                   basic_auth: {username: parsed_url.user, password: parsed_url.password})
+    end
   end
+  
 end
 # == Schema Information
 #
