@@ -10,15 +10,17 @@ class Event < ActiveRecord::Base
   Pushed    = 5
   Commented = 6
   Merged    = 7
+  Joined    = 8 # User joined project
+  Left      = 9 # User left project
 
   belongs_to :project
-  belongs_to :target, :polymorphic => true
+  belongs_to :target, polymorphic: true
 
   # For Hash only
   serialize :data
 
   scope :recent, order("created_at DESC")
-  scope :code_push, where(:action => Pushed)
+  scope :code_push, where(action: Pushed)
 
   def self.determine_action(record)
     if [Issue, MergeRequest].include? record.class
@@ -29,7 +31,7 @@ class Event < ActiveRecord::Base
   end
 
   def self.recent_for_user user
-    where(:project_id => user.projects.map(&:id)).recent
+    where(project_id: user.projects.map(&:id)).recent
   end
 
   # Next events currently enabled for system
@@ -37,7 +39,7 @@ class Event < ActiveRecord::Base
   #  - new issue
   #  - merge request
   def allowed?
-    push? || issue? || merge_request?
+    push? || issue? || merge_request? || membership_changed?
   end
 
   def push?
@@ -84,6 +86,18 @@ class Event < ActiveRecord::Base
       [Closed, Reopened].include?(action)
   end
 
+  def joined?
+    action == Joined
+  end
+
+  def left?
+    action == Left
+  end
+
+  def membership_changed?
+    joined? || left?
+  end
+
   def issue 
     target if target_type == "Issue"
   end
@@ -101,14 +115,18 @@ class Event < ActiveRecord::Base
       "closed"
     elsif merged?
       "merged"
+    elsif joined?
+      'joined'
+    elsif left?
+      'left'
     else 
       "opened"
     end
   end
 
-  delegate :name, :email, :to => :author, :prefix => true, :allow_nil => true
-  delegate :title, :to => :issue, :prefix => true, :allow_nil => true
-  delegate :title, :to => :merge_request, :prefix => true, :allow_nil => true
+  delegate :name, :email, to: :author, prefix: true, allow_nil: true
+  delegate :title, to: :issue, prefix: true, allow_nil: true
+  delegate :title, to: :merge_request, prefix: true, allow_nil: true
 end
 # == Schema Information
 #

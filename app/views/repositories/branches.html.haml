@@ -1,6 +1,6 @@
 = render "repositories/branches_head"
 - unless @branches.empty?
-  %table.admin-table
+  %table
     %thead
       %tr
         %th Name
@@ -9,4 +9,4 @@
 
     %tbody
       - @branches.each do |branch|
-        = render "repositories/branch", :branch => branch
+        = render "repositories/branch", branch: branch

@@ -1,15 +1,13 @@
 class Issue < ActiveRecord::Base
   include IssueCommonality
-  include Upvote
+  include Votes
 
   acts_as_taggable_on :labels
 
   belongs_to :milestone
 
   validates :description,
-            :length   => { :within => 0..2000 }
-
-  acts_as_list
+            length: { within: 0..2000 }
 
   def self.open_for(user)
     opened.assigned(user)

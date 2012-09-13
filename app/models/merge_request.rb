@@ -2,7 +2,7 @@ require File.join(Rails.root, "app/models/commit")
 
 class MergeRequest < ActiveRecord::Base
   include IssueCommonality
-  include Upvote
+  include Votes
 
   BROKEN_DIFF = "--broken-diff"
 
@@ -20,7 +20,7 @@ class MergeRequest < ActiveRecord::Base
   validate :validate_branches
 
   def self.find_all_by_branch(branch_name)
-    where("source_branch like :branch or target_branch like :branch", :branch => branch_name)
+    where("source_branch like :branch or target_branch like :branch", branch: branch_name)
   end
 
   def human_state
@@ -48,7 +48,7 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def mark_as_unchecked
-    self.update_attributes(:state => UNCHECKED)
+    self.update_attributes(state: UNCHECKED)
   end
 
   def can_be_merged?
@@ -88,8 +88,11 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def unmerged_diffs
-    commits = project.repo.commits_between(target_branch, source_branch).map {|c| Commit.new(c)}
-    diffs = project.repo.diff(commits.first.prev_commit.id, commits.last.id) rescue []
+    # Only show what is new in the source branch compared to the target branch, not the other way around.
+    # The linex below with merge_base is equivalent to diff with three dots (git diff branch1...branch2)
+    # From the git documentation: "git diff A...B" is equivalent to "git diff $(git-merge-base A B) B"
+    common_commit = project.repo.git.native(:merge_base, {}, [target_branch, source_branch]).strip
+    diffs = project.repo.diff(common_commit, source_branch)
   end
 
   def last_commit
@@ -101,11 +104,11 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def merge_event
-    self.project.events.where(:target_id => self.id, :target_type => "MergeRequest", :action => Event::Merged).last
+    self.project.events.where(target_id: self.id, target_type: "MergeRequest", action: Event::Merged).last
   end
 
   def closed_event
-    self.project.events.where(:target_id => self.id, :target_type => "MergeRequest", :action => Event::Closed).last
+    self.project.events.where(target_id: self.id, target_type: "MergeRequest", action: Event::Closed).last
   end
 
   def commits
@@ -128,7 +131,7 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def mark_as_unmergable
-    self.update_attributes :state => CANNOT_BE_MERGED
+    self.update_attributes state: CANNOT_BE_MERGED
   end
 
   def reloaded_commits
@@ -150,16 +153,16 @@ class MergeRequest < ActiveRecord::Base
   def merge!(user_id)
     self.mark_as_merged!
     Event.create(
-      :project => self.project,
-      :action => Event::Merged,
-      :target_id => self.id,
-      :target_type => "MergeRequest",
-      :author_id => user_id
+      project: self.project,
+      action: Event::Merged,
+      target_id: self.id,
+      target_type: "MergeRequest",
+      author_id: user_id
     )
   end
 
   def automerge!(current_user)
-    if Gitlab::Merge.new(self, current_user).merge
+    if Gitlab::Merge.new(self, current_user).merge && self.unmerged_commits.empty?
       self.merge!(current_user.id)
       true
     end
