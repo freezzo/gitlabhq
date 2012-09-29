@@ -1,7 +1,10 @@
 class UsersProjectObserver < ActiveRecord::Observer
-  def after_create(users_project)
+  def after_commit(users_project)
+    return if users_project.destroyed?
     Notify.project_access_granted_email(users_project.id).deliver
+  end
 
+  def after_create(users_project)
     Event.create(
       project_id: users_project.project.id,
       action: Event::Joined,
@@ -9,16 +12,11 @@ class UsersProjectObserver < ActiveRecord::Observer
     )
   end
 
-  def after_update(users_project)
-    Notify.project_access_granted_email(users_project.id).deliver
-  end
-
   def after_destroy(users_project)
     Event.create(
-      project_id: users_project.project.id, 
-      action: Event::Left, 
+      project_id: users_project.project.id,
+      action: Event::Left,
       author_id: users_project.user.id
     )
   end
-
 end

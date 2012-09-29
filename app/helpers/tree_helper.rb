@@ -32,7 +32,16 @@ module TreeHelper
   #
   # Returns boolean
   def markup?(filename)
-    filename.end_with?(*%w(.mdown .md .markdown .textile .rdoc .org .creole
-                          .mediawiki .rst .asciidoc .pod))
+    filename.end_with?(*%w(.textile .rdoc .org .creole
+                           .mediawiki .rst .asciidoc .pod))
+  end
+
+  def gitlab_markdown?(filename)
+    filename.end_with?(*%w(.mdown .md .markdown))
+  end
+
+  # Simple shortcut to File.join
+  def tree_join(*args)
+    File.join(*args)
   end
 end

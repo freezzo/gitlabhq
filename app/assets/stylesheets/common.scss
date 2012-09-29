@@ -145,6 +145,19 @@ span.update-author {
 .label {
   background-color: #474D57;
 
+  &.label-tag {
+    background: none;
+    border: none;
+    padding:4px 6px;
+    color:#444;
+    text-shadow:0 0 1px #fff;
+
+    &.grouped {
+      float: left;
+      margin-right: 6px;
+      padding: 6px;
+    }
+  }
   &.label-issue {
     background-color: #eee;
     border: 1px solid #ccc;
@@ -158,35 +171,17 @@ span.update-author {
       padding: 6px;
     }
   }
-}
 
-.event_label {
-  @extend .label;
-  background-color: #999;
-
-  &.pushed {
-    background-color: #4A97BD;
+  &.label-success {
+    background-color: #8D8;
+    color: #333;
+    text-shadow: 0 1px 1px white;
   }
 
-  &.opened {
-    background-color: #469847;
-  }
-
-  &.closed {
-    background-color: #B94A48;
-  }
-
-  &.merged {
-    background-color: #2A2;
-  }
-
-  &.joined {
-    background-color: #1ca9dd;
-  }
-
-  &.left {
-    background-color: #888;
-    float:none;
+  &.label-error {
+    background-color: #D88;
+    color: #333;
+    text-shadow: 0 1px 1px white;
   }
 }
 
@@ -330,41 +325,6 @@ p.time {
   border:2px solid #ddd;
 }
 
-.event_feed {
-  min-height:40px;
-  border-bottom:1px solid #ddd;
-  .avatar {
-    width:32px;
-  }
-  .event_icon {
-    float:right;
-    margin-right:2px;
-    img {
-      width:20px;
-    }
-  }
-  ul {
-    margin-left:50px;
-    margin-bottom:5px;
-    .avatar {
-      width:24px;
-    }
-  }
-
-  padding: 15px 5px;
-  &:last-child { border:none }
-  .wll:hover { background:none }
-
-  .event_commits {
-    margin-top: 5px;
-
-    li.commit {
-      background: transparent;
-      padding:5px;
-      border:none;
-    }
-  }
-}
 
 .ico {
   background: url("images.png") no-repeat -85px -77px;
@@ -614,22 +574,6 @@ li.note {
   background:#fff;
 }
 
-/**
- * Push event widget
- *
- */
-.event_lp {
-  @extend .ui-box;
-  color:#777;
-  margin-bottom:20px;
-  padding:8px;
-  @include border-radius(4px);
-  min-height:22px;
-
-  .avatar {
-    width:24px;
-  }
-}
 
 .supp_diff_link,
 .mr_show_all_commits {
@@ -699,7 +643,22 @@ li.note {
   .active {
     img {
       border:1px solid #ccc;
+      background:$hover;
       @include border-radius(5px);
     }
   }
 }
+
+.btn-build-token {
+  float: left;
+  padding: 6px 20px;
+  margin-right: 12px;
+}
+
+.gitlab-promo {
+  a {
+    color:#aaa;
+    margin-right: 30px;
+  }
+}
+

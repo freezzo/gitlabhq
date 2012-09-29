@@ -28,6 +28,14 @@ module Gitlab
       end
     end
 
+    def attributes_for_keys(keys)
+      attrs = {}
+      keys.each do |key|
+        attrs[key] = params[key] if params[key].present?
+      end
+      attrs
+    end
+
     # error helpers
 
     def forbidden!
@@ -53,7 +61,7 @@ module Gitlab
       error!({'message' => message}, status)
     end
 
-    private 
+    private
 
     def abilities
       @abilities ||= begin

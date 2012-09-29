@@ -1,6 +1,9 @@
 class Event < ActiveRecord::Base
   include PushEvent
 
+  attr_accessible :project, :action, :data, :author_id, :project_id,
+                  :target_id, :target_type
+
   default_scope where("author_id IS NOT NULL")
 
   Created   = 1
@@ -13,6 +16,11 @@ class Event < ActiveRecord::Base
   Joined    = 8 # User joined project
   Left      = 9 # User left project
 
+  delegate :name, :email, to: :author, prefix: true, allow_nil: true
+  delegate :title, to: :issue, prefix: true, allow_nil: true
+  delegate :title, to: :merge_request, prefix: true, allow_nil: true
+
+  belongs_to :author, class_name: "User"
   belongs_to :project
   belongs_to :target, polymorphic: true
 
@@ -35,11 +43,19 @@ class Event < ActiveRecord::Base
   end
 
   # Next events currently enabled for system
-  #  - push 
+  #  - push
   #  - new issue
   #  - merge request
   def allowed?
     push? || issue? || merge_request? || membership_changed?
+  end
+
+  def project_name
+    if project
+      project.name
+    else
+      "(deleted)"
+    end
   end
 
   def push?
@@ -58,31 +74,31 @@ class Event < ActiveRecord::Base
     action == self.class::Reopened
   end
 
-  def issue? 
+  def issue?
     target_type == "Issue"
   end
 
-  def merge_request? 
+  def merge_request?
     target_type == "MergeRequest"
   end
 
-  def new_issue? 
-    target_type == "Issue" && 
+  def new_issue?
+    target_type == "Issue" &&
       action == Created
   end
 
-  def new_merge_request? 
-    target_type == "MergeRequest" && 
+  def new_merge_request?
+    target_type == "MergeRequest" &&
       action == Created
   end
 
-  def changed_merge_request? 
-    target_type == "MergeRequest" && 
+  def changed_merge_request?
+    target_type == "MergeRequest" &&
       [Closed, Reopened].include?(action)
   end
 
-  def changed_issue? 
-    target_type == "Issue" && 
+  def changed_issue?
+    target_type == "Issue" &&
       [Closed, Reopened].include?(action)
   end
 
@@ -98,7 +114,7 @@ class Event < ActiveRecord::Base
     joined? || left?
   end
 
-  def issue 
+  def issue
     target if target_type == "Issue"
   end
 
@@ -106,7 +122,7 @@ class Event < ActiveRecord::Base
     target if target_type == "MergeRequest"
   end
 
-  def author 
+  def author
     @author ||= User.find(author_id)
   end
 
@@ -119,28 +135,24 @@ class Event < ActiveRecord::Base
       'joined'
     elsif left?
       'left'
-    else 
+    else
       "opened"
     end
   end
-
-  delegate :name, :email, to: :author, prefix: true, allow_nil: true
-  delegate :title, to: :issue, prefix: true, allow_nil: true
-  delegate :title, to: :merge_request, prefix: true, allow_nil: true
 end
+
 # == Schema Information
 #
 # Table name: events
 #
-#  id          :integer(4)      not null, primary key
+#  id          :integer         not null, primary key
 #  target_type :string(255)
-#  target_id   :integer(4)
+#  target_id   :integer
 #  title       :string(255)
 #  data        :text
-#  project_id  :integer(4)
+#  project_id  :integer
 #  created_at  :datetime        not null
 #  updated_at  :datetime        not null
-#  action      :integer(4)
-#  author_id   :integer(4)
+#  action      :integer
+#  author_id   :integer
 #
-

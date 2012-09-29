@@ -1,14 +1,7 @@
-class IssuesController < ApplicationController
-  before_filter :authenticate_user!
-  before_filter :project
+class IssuesController < ProjectResourceController
   before_filter :module_enabled
   before_filter :issue, only: [:edit, :update, :destroy, :show]
   helper_method :issues_filter
-
-  layout "project"
-
-  # Authorize
-  before_filter :add_project_abilities
 
   # Allow read any issue
   before_filter :authorize_read_issue!
@@ -17,7 +10,7 @@ class IssuesController < ApplicationController
   before_filter :authorize_write_issue!, only: [:new, :create]
 
   # Allow modify issue
-  before_filter :authorize_modify_issue!, only: [:close, :edit, :update]
+  before_filter :authorize_modify_issue!, only: [:edit, :update]
 
   # Allow destroy issue
   before_filter :authorize_admin_issue!, only: [:destroy]
@@ -87,8 +80,6 @@ class IssuesController < ApplicationController
   end
 
   def destroy
-    return access_denied! unless can?(current_user, :admin_issue, @issue)
-
     @issue.destroy
 
     respond_to do |format|

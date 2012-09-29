@@ -17,5 +17,6 @@ module Gitlab
     mount Projects
     mount Issues
     mount Milestones
+    mount Session
   end
 end

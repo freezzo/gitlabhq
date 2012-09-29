@@ -40,13 +40,16 @@ module Gitlab
       post do
         params[:code] ||= params[:name]
         params[:path] ||= params[:name]
-        project_attrs = {}
-        params.each_pair do |k ,v|
-          if Project.attribute_names.include? k
-            project_attrs[k] = v
-          end
-        end
-        @project = Project.create_by_user(project_attrs, current_user)
+        attrs = attributes_for_keys [:code,
+                                    :path,
+                                    :name,
+                                    :description,
+                                    :default_branch,
+                                    :issues_enabled,
+                                    :wall_enabled,
+                                    :merge_requests_enabled,
+                                    :wiki_enabled]
+        @project = Project.create_by_user(attrs, current_user)
         if @project.saved?
           present @project, with: Entities::Project
         else
@@ -54,56 +57,83 @@ module Gitlab
         end
       end
 
-      # Get project users
+      # Get a project team members
       #
       # Parameters:
       #   id (required) - The ID or code name of a project
       # Example Request:
-      #   GET /projects/:id/users
-      get ":id/users" do
-        @users_projects = paginate user_project.users_projects
-        present @users_projects, with: Entities::UsersProject
+      #   GET /projects/:id/members
+      get ":id/members" do
+        @members = paginate user_project.users
+        present @members, with: Entities::ProjectMember, project: user_project
       end
 
-      # Add users to project with specified access level
+      # Get a project team members
       #
       # Parameters:
       #   id (required) - The ID or code name of a project
-      #   user_ids (required) - The ID list of users to add
-      #   project_access (required) - Project access level
+      #   user_id (required) - The ID of a user
       # Example Request:
-      #   POST /projects/:id/users
-      post ":id/users" do
-        authorize! :admin_project, user_project
-        user_project.add_users_ids_to_team(params[:user_ids].values, params[:project_access])
-        nil
+      #   GET /projects/:id/members/:user_id
+      get ":id/members/:user_id" do
+        @member = user_project.users.find params[:user_id]
+        present @member, with: Entities::ProjectMember, project: user_project
       end
 
-      # Update users to specified access level
+      # Add a new project team member
       #
       # Parameters:
       #   id (required) - The ID or code name of a project
-      #   user_ids (required) - The ID list of users to add
-      #   project_access (required) - New project access level to
+      #   user_id (required) - The ID of a user
+      #   access_level (required) - Project access level
       # Example Request:
-      #   PUT /projects/:id/add_users
-      put ":id/users" do
+      #   POST /projects/:id/members
+      post ":id/members" do
         authorize! :admin_project, user_project
-        user_project.update_users_ids_to_role(params[:user_ids].values, params[:project_access])
-        nil
+        users_project = user_project.users_projects.new(
+          user_id: params[:user_id],
+          project_access: params[:access_level]
+        )
+
+        if users_project.save
+          @member = users_project.user
+          present @member, with: Entities::ProjectMember, project: user_project
+        else
+          not_found!
+        end
       end
 
-      # Delete project users
+      # Update project team member
       #
       # Parameters:
       #   id (required) - The ID or code name of a project
-      #   user_ids (required) - The ID list of users to delete
+      #   user_id (required) - The ID of a team member
+      #   access_level (required) - Project access level
       # Example Request:
-      #   DELETE /projects/:id/users
-      delete ":id/users" do
+      #   PUT /projects/:id/members/:user_id
+      put ":id/members/:user_id" do
         authorize! :admin_project, user_project
-        user_project.delete_users_ids_from_team(params[:user_ids].values)
-        nil
+        users_project = user_project.users_projects.find_by_user_id params[:user_id]
+
+        if users_project.update_attributes(project_access: params[:access_level])
+          @member = users_project.user
+          present @member, with: Entities::ProjectMember, project: user_project
+        else
+          not_found!
+        end
+      end
+
+      # Remove a team member from project
+      #
+      # Parameters:
+      #   id (required) - The ID or code name of a project
+      #   user_id (required) - The ID of a team member
+      # Example Request:
+      #   DELETE /projects/:id/members/:user_id
+      delete ":id/members/:user_id" do
+        authorize! :admin_project, user_project
+        users_project = user_project.users_projects.find_by_user_id params[:user_id]
+        users_project.destroy
       end
 
       # Get project hooks
@@ -181,6 +211,24 @@ module Gitlab
         present user_project.repo.tags.sort_by(&:name).reverse, with: Entities::RepoObject
       end
 
+      # Get a project repository commits
+      #
+      # Parameters:
+      #   id (required) - The ID or code name of a project
+      #   ref_name (optional) - The name of a repository branch or tag
+      # Example Request:
+      #   GET /projects/:id/repository/commits
+      get ":id/repository/commits" do
+        authorize! :download_code, user_project
+
+        page = params[:page] || 0
+        per_page = params[:per_page] || 20
+        ref = params[:ref_name] || user_project.try(:default_branch) || 'master'
+
+        commits = user_project.commits(ref, nil, per_page, page * per_page)
+        present CommitDecorator.decorate(commits), with: Entities::RepoCommit
+      end
+
       # Get a project snippet
       #
       # Parameters:
@@ -204,12 +252,12 @@ module Gitlab
       # Example Request:
       #   POST /projects/:id/snippets
       post ":id/snippets" do
-        @snippet = user_project.snippets.new(
-          title: params[:title],
-          file_name: params[:file_name],
-          expires_at: params[:lifetime],
-          content: params[:code]
-        )
+        authorize! :write_snippet, user_project
+
+        attrs = attributes_for_keys [:title, :file_name]
+        attrs[:expires_at] = params[:lifetime] if params[:lifetime].present?
+        attrs[:content] = params[:code] if params[:code].present?
+        @snippet = user_project.snippets.new attrs
         @snippet.author = current_user
 
         if @snippet.save
@@ -234,14 +282,11 @@ module Gitlab
         @snippet = user_project.snippets.find(params[:snippet_id])
         authorize! :modify_snippet, @snippet
 
-        parameters = {
-          title: (params[:title] || @snippet.title),
-          file_name: (params[:file_name] || @snippet.file_name),
-          expires_at: (params[:lifetime] || @snippet.expires_at),
-          content: (params[:code] || @snippet.content)
-        }
+        attrs = attributes_for_keys [:title, :file_name]
+        attrs[:expires_at] = params[:lifetime] if params[:lifetime].present?
+        attrs[:content] = params[:code] if params[:code].present?
 
-        if @snippet.update_attributes(parameters)
+        if @snippet.update_attributes attrs
           present @snippet, with: Entities::ProjectSnippet
         else
           not_found!
@@ -284,6 +329,8 @@ module Gitlab
       # Example Request:
       #   GET /projects/:id/repository/commits/:sha/blob
       get ":id/repository/commits/:sha/blob" do
+        authorize! :download_code, user_project
+
         ref = params[:sha]
 
         commit = user_project.commit ref
