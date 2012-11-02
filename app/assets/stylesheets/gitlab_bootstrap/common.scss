@@ -26,8 +26,10 @@
 .underlined { border-bottom: 1px solid #CCC; }
 .no-borders { border:none; }
 .vlink { color: $link_color !important; }
+.underlined_link { text-decoration: underline; }
 .borders { border: 1px solid #ccc; @include shade; }
 .hint { font-style: italic; color: #999; }
+.light { color: #888 }
 
 /** PILLS & TABS**/
 .nav-pills a:hover { background-color:#888; }
@@ -45,6 +47,9 @@
         background-color: #eee;
         color:#888;
         text-shadow:0 1px 1px #fff;
+      }
+      i[class^="icon-"] {
+        line-height:14px;
       }
     }
     &.active {

@@ -662,3 +662,24 @@ li.note {
   }
 }
 
+pre {
+  &.clean {
+    background:none;
+    border:none;
+    margin:0;
+    padding:0;
+  }
+}
+
+.milestone .progress {
+  margin-bottom: 0;
+  margin-top:4px;
+}
+
+.float-link {
+  float:left;
+  margin-right:15px;
+  .s16 {
+    margin-right:5px;
+  }
+}

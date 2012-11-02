@@ -4,6 +4,11 @@ class Commit
   include StaticModel
   extend ActiveModel::Naming
 
+  # Safe amount of files with diffs in one commit to render
+  # Used to prevent 500 error on huge commits by suppressing diff
+  #
+  DIFF_SAFE_SIZE = 100
+
   attr_accessor :commit, :head, :refs
 
   delegate  :message, :authored_date, :committed_date, :parents, :sha,
@@ -107,7 +112,7 @@ class Commit
   end
 
   def safe_message
-    utf8 message
+    @safe_message ||= utf8 message
   end
 
   def created_at

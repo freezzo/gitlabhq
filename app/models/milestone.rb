@@ -3,8 +3,10 @@ class Milestone < ActiveRecord::Base
 
   belongs_to :project
   has_many :issues
+  has_many :merge_requests
 
-  validates_presence_of :title, :project_id
+  validates :title, presence: true
+  validates :project, presence: true
 
   def self.active
     where("due_date > ? OR due_date IS NULL", Date.today)
@@ -14,8 +16,20 @@ class Milestone < ActiveRecord::Base
     User.where(id: issues.pluck(:assignee_id))
   end
 
+  def open_items_count
+    self.issues.opened.count + self.merge_requests.opened.count
+  end
+
+  def closed_items_count
+    self.issues.closed.count + self.merge_requests.closed.count
+  end
+
+  def total_items_count
+    self.issues.count + self.merge_requests.count
+  end
+
   def percent_complete
-    ((self.issues.closed.count * 100) / self.issues.count).abs
+    ((closed_items_count * 100) / total_items_count).abs
   rescue ZeroDivisionError
     100
   end
@@ -38,3 +52,4 @@ end
 #  created_at  :datetime        not null
 #  updated_at  :datetime        not null
 #
+

@@ -31,10 +31,10 @@
     %h5
       Progress:
       %small
-        #{@milestone.issues.opened.count} open
+        #{@milestone.closed_items_count} closed
         &ndash;
-        #{@milestone.issues.closed.count} closed
-    .progress.progress-success
+        #{@milestone.open_items_count} open
+    .progress.progress-info
       .bar{style: "width: #{@milestone.percent_complete}%;"}
 
 
@@ -45,26 +45,41 @@
 
 .row
   .span6
-    %table
+    %table.milestone-issue-filter
       %thead
-        %th Open Issues
+        %th
+          %ul.nav.nav-pills
+            %li.active= link_to('Open Issues', '#')
+            %li=link_to('All Issues', '#')
       - @issues.each do |issue|
-        %tr
+        %tr{data: {closed: issue.closed}}
           %td
             = link_to [@project, issue] do
               %span.badge.badge-info ##{issue.id}
             &ndash;
             = link_to_gfm truncate(issue.title, length: 60), [@project, issue]
-    %br
-    = paginate @issues, theme: "gitlab"
 
   .span6
-    %table
+    %table.milestone-merge-requests-filter
       %thead
-        %th Participants
-      - @users.each do |user|
-        %tr
+        %th
+          %ul.nav.nav-pills
+            %li.active= link_to('Open Merge Requests', '#')
+            %li=link_to('All Merge Requests', '#')
+      - @merge_requests.each do |merge_request|
+        %tr{data: {closed: merge_request.closed}}
           %td
-            = image_tag gravatar_icon(user.email, 24), width: "24"
-            &nbsp;
-            = user.name
+            = link_to [@project, merge_request] do
+              %span.badge.badge-info ##{merge_request.id}
+            &ndash;
+            = link_to_gfm truncate(merge_request.title, length: 60), [@project, merge_request]
+
+%hr
+%h6 Participants:
+%div
+  - @users.each do |user|
+    = link_to tm_path(user.tm_of(@project)), class: 'float-link' do
+      = user.avatar_image
+      = user.name
+
+.clearfix

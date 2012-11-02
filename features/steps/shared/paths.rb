@@ -6,6 +6,22 @@ module SharedPaths
   end
 
   # ----------------------------------------
+  # Group
+  # ----------------------------------------
+
+  When 'I visit group page' do
+    visit group_path(current_group)
+  end
+
+  When 'I visit group issues page' do
+    visit issues_group_path(current_group)
+  end
+
+  When 'I visit group merge requests page' do
+    visit merge_requests_group_path(current_group)
+  end
+
+  # ----------------------------------------
   # Dashboard
   # ----------------------------------------
 
@@ -85,6 +101,10 @@ module SharedPaths
     visit admin_resque_path
   end
 
+  And 'I visit admin groups page' do
+    visit admin_groups_path
+  end
+
   # ----------------------------------------
   # Generic Project
   # ----------------------------------------
@@ -101,10 +121,13 @@ module SharedPaths
     visit project_commits_path(@project, @project.root_ref, {limit: 5})
   end
 
+  Given "I visit my project's commits page for a specific path" do
+    visit project_commits_path(@project, @project.root_ref + "/app/models/project.rb", {limit: 5})
+  end
+
   Given "I visit my project's network page" do
-    # Stub out find_all to speed this up (10 commits vs. 650)
-    commits = Grit::Commit.find_all(@project.repo, nil, {max_count: 10})
-    Grit::Commit.stub(:find_all).and_return(commits)
+    # Stub GraphCommit max_size to speed up test (10 commits vs. 650)
+    Gitlab::GraphCommit.stub(max_count: 10)
 
     visit graph_project_path(@project)
   end

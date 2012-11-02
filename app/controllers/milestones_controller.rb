@@ -30,8 +30,9 @@ class MilestonesController < ProjectResourceController
   end
 
   def show
-    @issues = @milestone.issues.opened.page(params[:page]).per(40)
-    @users = @milestone.participants
+    @issues = @milestone.issues
+    @users = UserDecorator.decorate(@milestone.participants)
+    @merge_requests = @milestone.merge_requests
 
     respond_to do |format|
       format.html
@@ -54,7 +55,7 @@ class MilestonesController < ProjectResourceController
 
     respond_to do |format|
       format.js
-      format.html do 
+      format.html do
         if @milestone.valid?
           redirect_to [@project, @milestone]
         else

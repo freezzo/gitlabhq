@@ -7,28 +7,10 @@ class Issue < ActiveRecord::Base
 
   acts_as_taggable_on :labels
 
-  belongs_to :milestone
-
   validates :description, length: { within: 0..2000 }
 
   def self.open_for(user)
     opened.assigned(user)
-  end
-
-  def is_assigned?
-    !!assignee_id
-  end
-
-  def is_being_reassigned?
-    assignee_id_changed?
-  end
-
-  def is_being_closed?
-    closed_changed? && closed
-  end
-
-  def is_being_reopened?
-    closed_changed? && !closed
   end
 end
 
@@ -49,3 +31,4 @@ end
 #  description  :text
 #  milestone_id :integer
 #
+
