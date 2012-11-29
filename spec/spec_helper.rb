@@ -11,14 +11,13 @@ require 'capybara/rails'
 require 'capybara/rspec'
 require 'webmock/rspec'
 require 'email_spec'
-require 'headless'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
 Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
 
-# Use capybara-webkit
-Capybara.javascript_driver = :webkit
+require 'capybara/poltergeist'
+Capybara.javascript_driver = :poltergeist
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -35,16 +34,16 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = false
 
-  config.before :all do
-    headless = Headless.new
-    headless.start
-  end
-
   config.before do
     stub_gitolite!
 
     # !!! Observers disabled by default in tests
     ActiveRecord::Base.observers.disable(:all)
     # ActiveRecord::Base.observers.enable(:all)
+
+    # Use tmp dir for FS manipulations
+    Gitlab.config.stub(git_base_path: Rails.root.join('tmp', 'test-git-base-path'))
+    FileUtils.rm_rf Gitlab.config.git_base_path
+    FileUtils.mkdir_p Gitlab.config.git_base_path
   end
 end

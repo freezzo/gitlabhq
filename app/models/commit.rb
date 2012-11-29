@@ -1,6 +1,5 @@
 class Commit
   include ActiveModel::Conversion
-  include Gitlab::Encode
   include StaticModel
   extend ActiveModel::Naming
 
@@ -112,7 +111,7 @@ class Commit
   end
 
   def safe_message
-    @safe_message ||= utf8 message
+    @safe_message ||= message
   end
 
   def created_at
@@ -124,7 +123,7 @@ class Commit
   end
 
   def author_name
-    utf8 author.name
+    author.name
   end
 
   # Was this commit committed by a different person than the original author?
@@ -133,7 +132,7 @@ class Commit
   end
 
   def committer_name
-    utf8 committer.name
+    committer.name
   end
 
   def committer_email
@@ -150,5 +149,20 @@ class Commit
 
   def parents_count
     parents && parents.count || 0
+  end
+
+  # Shows the diff between the commit's parent and the commit.
+  #
+  # Cuts out the header and stats from #to_patch and returns only the diff.
+  def to_diff
+    # see Grit::Commit#show
+    patch = to_patch
+
+    # discard lines before the diff
+    lines = patch.split("\n")
+    while !lines.first.start_with?("diff --git") do
+      lines.shift
+    end
+    lines.join("\n")
   end
 end

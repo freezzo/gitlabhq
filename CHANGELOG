@@ -1,3 +1,35 @@
+v 3.2.0
+  - Remove project code - use path instead
+  - added username field to user
+  - rake task to fill usernames based on emails create namespaces for users
+  - STI Group < Namespace
+  - Project has namespace_id
+  - Projects with namespaces also namespaced in gitolite and stored in subdir
+  - Moving project to group will move it under group namespace
+  - Ability to move project from namespaces to another
+  - Fixes commit patches getting escaped (see #2036)
+  - Support diff and patch generation for commits and merge request
+  - MergeReqest doesn't generate a temporary file for the patch any more
+  - Update the UI to allow downloading Patch or Diff 
+
+v 3.1.0
+  - Updated gems
+  - Services: Gitlab CI integration
+  - Events filter on dashboard
+  - Own namespace for redis/resque
+  - Optimized commit diff views
+  - add alphabetical order for projects admin page
+  - Improved web editor
+  - Commit stats page
+  - Documentation split and cleanup
+  - Link to commit authors everywhere
+  - Restyled milestones list
+  - added Milestone to Merge Request
+  - Restyled Top panel
+  - Refactored Satellite Code
+  - Added file line links
+  - moved from capybara-webkit to poltergeist + phantomjs
+
 v 3.0.3
   - Fixed bug with issues list in Chrome
   - New Feature: Import team from another project

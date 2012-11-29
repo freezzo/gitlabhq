@@ -1,3 +1,24 @@
+# == Schema Information
+#
+# Table name: merge_requests
+#
+#  id            :integer          not null, primary key
+#  target_branch :string(255)      not null
+#  source_branch :string(255)      not null
+#  project_id    :integer          not null
+#  author_id     :integer
+#  assignee_id   :integer
+#  title         :string(255)
+#  closed        :boolean          default(FALSE), not null
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  st_commits    :text(2147483647)
+#  st_diffs      :text(2147483647)
+#  merged        :boolean          default(FALSE), not null
+#  state         :integer          default(1), not null
+#  milestone_id  :integer
+#
+
 require Rails.root.join("app/models/commit")
 require Rails.root.join("app/roles/static_model")
 
@@ -181,42 +202,22 @@ class MergeRequest < ActiveRecord::Base
     false
   end
 
-  def to_raw
-    FileUtils.mkdir_p(Rails.root.join("tmp", "patches"))
-    patch_path = Rails.root.join("tmp", "patches", "merge_request_#{self.id}.patch")
-
-    from = commits.last.id
-    to = source_branch
-
-    project.repo.git.run('', "format-patch" , " > #{patch_path.to_s}", {}, ["#{from}..#{to}", "--stdout"])
-
-    patch_path
-  end
-
   def mr_and_commit_notes
     commit_ids = commits.map(&:id)
     Note.where("(noteable_type = 'MergeRequest' AND noteable_id = :mr_id) OR (noteable_type = 'Commit' AND noteable_id IN (:commit_ids))", mr_id: id, commit_ids: commit_ids)
   end
+
+  # Returns the raw diff for this merge request
+  #
+  # see "git diff"
+  def to_diff
+    project.repo.git.native(:diff, {timeout: 30, raise: true}, "#{target_branch}...#{source_branch}")
+  end
+
+  # Returns the commit as a series of email patches.
+  #
+  # see "git format-patch"
+  def to_patch
+    project.repo.git.format_patch({timeout: 30, raise: true, stdout: true}, "#{target_branch}..#{source_branch}")
+  end
 end
-
-# == Schema Information
-#
-# Table name: merge_requests
-#
-#  id            :integer         not null, primary key
-#  target_branch :string(255)     not null
-#  source_branch :string(255)     not null
-#  project_id    :integer         not null
-#  author_id     :integer
-#  assignee_id   :integer
-#  title         :string(255)
-#  closed        :boolean         default(FALSE), not null
-#  created_at    :datetime        not null
-#  updated_at    :datetime        not null
-#  st_commits    :text(4294967295
-#  st_diffs      :text(4294967295
-#  merged        :boolean         default(FALSE), not null
-#  state         :integer         default(1), not null
-#  milestone_id  :integer
-#
-

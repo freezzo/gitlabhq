@@ -3,19 +3,9 @@ require 'spec_helper'
 describe "Projects" do
   before { login_as :user }
 
-  describe 'GET /project/new' do
-    it "should work autocomplete", :js => true do
-      visit new_project_path
-      
-      fill_in 'project_name', with: 'Awesome'
-      find("#project_path").value.should == 'awesome'
-      find("#project_code").value.should == 'awesome'
-    end
-  end
-
   describe "GET /projects/show" do
     before do
-      @project = Factory :project, owner: @user
+      @project = create(:project, owner: @user)
       @project.add_access(@user, :read)
 
       visit project_path(@project)
@@ -28,7 +18,7 @@ describe "Projects" do
 
   describe "GET /projects/:id/edit" do
     before do
-      @project = Factory :project
+      @project = create(:project)
       @project.add_access(@user, :admin, :read)
 
       visit edit_project_path(@project)
@@ -47,13 +37,12 @@ describe "Projects" do
 
   describe "PUT /projects/:id" do
     before do
-      @project = Factory :project, owner: @user
+      @project = create(:project, owner: @user)
       @project.add_access(@user, :admin, :read)
 
       visit edit_project_path(@project)
 
       fill_in 'project_name', with: 'Awesome'
-      fill_in 'project_code', with: 'gitlabhq'
       click_button "Save"
       @project = @project.reload
     end
@@ -69,7 +58,7 @@ describe "Projects" do
 
   describe "DELETE /projects/:id" do
     before do
-      @project = Factory :project
+      @project = create(:project)
       @project.add_access(@user, :read, :admin)
       visit edit_project_path(@project)
     end

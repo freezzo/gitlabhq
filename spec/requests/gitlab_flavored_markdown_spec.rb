@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe "Gitlab Flavored Markdown" do
-  let(:project) { Factory :project }
-  let(:issue) { Factory :issue, project: project }
-  let(:merge_request) { Factory :merge_request, project: project }
+  let(:project) { create(:project) }
+  let(:issue) { create(:issue, project: project) }
+  let(:merge_request) { create(:merge_request, project: project) }
   let(:fred) do
-      u = Factory :user, name: "fred"
+      u = create(:user, name: "fred")
       project.users << u
       u
   end
@@ -84,16 +84,16 @@ describe "Gitlab Flavored Markdown" do
 
   describe "for issues" do
     before do
-      @other_issue = Factory :issue,
+      @other_issue = create(:issue,
+                            author: @user,
+                            assignee: @user,
+                            project: project)
+      @issue = create(:issue,
                       author: @user,
                       assignee: @user,
-                      project: project
-      @issue = Factory :issue,
-                author: @user,
-                assignee: @user,
-                project: project,
-                title: "fix ##{@other_issue.id}",
-                description: "ask @#{fred.name} for details"
+                      project: project,
+                      title: "fix ##{@other_issue.id}",
+                      description: "ask @#{fred.name} for details")
     end
 
     it "should render subject in issues#index" do
@@ -118,9 +118,9 @@ describe "Gitlab Flavored Markdown" do
 
   describe "for merge requests" do
     before do
-      @merge_request = Factory :merge_request,
-                        project: project,
-                        title: "fix ##{issue.id}"
+      @merge_request = create(:merge_request,
+                              project: project,
+                              title: "fix ##{issue.id}")
     end
 
     it "should render title in merge_requests#index" do
@@ -139,10 +139,10 @@ describe "Gitlab Flavored Markdown" do
 
   describe "for milestones" do
     before do
-      @milestone = Factory :milestone,
-                    project: project,
-                    title: "fix ##{issue.id}",
-                    description: "ask @#{fred.name} for details"
+      @milestone = create(:milestone,
+                          project: project,
+                          title: "fix ##{issue.id}",
+                          description: "ask @#{fred.name} for details")
     end
 
     it "should render title in milestones#index" do
@@ -192,18 +192,6 @@ describe "Gitlab Flavored Markdown" do
 
     it "should render in projects#wall", js: true do
       visit wall_project_path(project)
-      fill_in "note_note", with: "see ##{issue.id}"
-      click_button "Add Comment"
-
-      page.should have_link("##{issue.id}")
-    end
-
-    it "should render in wikis#index", js: true do
-      visit project_wiki_path(project, :index)
-      fill_in "Title", with: 'Test title'
-      fill_in "Content", with: '[link test](test)'
-      click_on "Save"
-
       fill_in "note_note", with: "see ##{issue.id}"
       click_button "Add Comment"
 

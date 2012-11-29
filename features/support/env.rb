@@ -11,14 +11,38 @@ end
 
 Dir["#{Rails.root}/features/steps/shared/*.rb"].each {|file| require file}
 
+#
+# Stub gitolite
+#
 include GitoliteStub
 
 WebMock.allow_net_connect!
-Capybara.javascript_driver = :webkit
+
+#
+# JS driver
+#
+require 'capybara/poltergeist'
+Capybara.javascript_driver = :poltergeist
+Spinach.hooks.on_tag("javascript") do
+  ::Capybara.current_driver = ::Capybara.javascript_driver
+  ::Capybara.default_wait_time = 5
+end
+
 
 DatabaseCleaner.strategy = :truncation
-Spinach.hooks.before_scenario { DatabaseCleaner.start }
-Spinach.hooks.after_scenario  { DatabaseCleaner.clean }
+
+Spinach.hooks.before_scenario do
+  # Use tmp dir for FS manipulations
+  Gitlab.config.stub(git_base_path: Rails.root.join('tmp', 'test-git-base-path'))
+  FileUtils.rm_rf Gitlab.config.git_base_path
+  FileUtils.mkdir_p Gitlab.config.git_base_path
+
+  DatabaseCleaner.start
+end
+
+Spinach.hooks.after_scenario do
+  DatabaseCleaner.clean
+end
 
 Spinach.hooks.before_run do
   RSpec::Mocks::setup self

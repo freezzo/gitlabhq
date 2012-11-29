@@ -2,42 +2,45 @@
 #
 # Table name: users
 #
-#  id                     :integer         not null, primary key
-#  email                  :string(255)     default(""), not null
-#  encrypted_password     :string(128)     default(""), not null
+#  id                     :integer          not null, primary key
+#  email                  :string(255)      default(""), not null
+#  encrypted_password     :string(255)      default(""), not null
 #  reset_password_token   :string(255)
 #  reset_password_sent_at :datetime
 #  remember_created_at    :datetime
-#  sign_in_count          :integer         default(0)
+#  sign_in_count          :integer          default(0)
 #  current_sign_in_at     :datetime
 #  last_sign_in_at        :datetime
 #  current_sign_in_ip     :string(255)
 #  last_sign_in_ip        :string(255)
-#  created_at             :datetime        not null
-#  updated_at             :datetime        not null
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
 #  name                   :string(255)
-#  admin                  :boolean         default(FALSE), not null
-#  projects_limit         :integer         default(10)
-#  skype                  :string(255)     default(""), not null
-#  linkedin               :string(255)     default(""), not null
-#  twitter                :string(255)     default(""), not null
+#  admin                  :boolean          default(FALSE), not null
+#  projects_limit         :integer          default(10)
+#  skype                  :string(255)      default(""), not null
+#  linkedin               :string(255)      default(""), not null
+#  twitter                :string(255)      default(""), not null
 #  authentication_token   :string(255)
-#  dark_scheme            :boolean         default(FALSE), not null
-#  theme_id               :integer         default(1), not null
+#  dark_scheme            :boolean          default(FALSE), not null
+#  theme_id               :integer          default(1), not null
 #  bio                    :string(255)
-#  blocked                :boolean         default(FALSE), not null
-#  failed_attempts        :integer         default(0)
+#  blocked                :boolean          default(FALSE), not null
+#  failed_attempts        :integer          default(0)
 #  locked_at              :datetime
 #  extern_uid             :string(255)
 #  provider               :string(255)
+#  username               :string(255)
 #
 
 require 'spec_helper'
 
 describe User do
   describe "Associations" do
+    it { should have_one(:namespace) }
     it { should have_many(:users_projects).dependent(:destroy) }
     it { should have_many(:projects) }
+    it { should have_many(:groups) }
     it { should have_many(:my_own_projects).class_name('Project') }
     it { should have_many(:keys).dependent(:destroy) }
     it { should have_many(:events).class_name('Event').dependent(:destroy) }
@@ -55,6 +58,7 @@ describe User do
   end
 
   describe 'validations' do
+    it { should validate_presence_of(:username) }
     it { should validate_presence_of(:projects_limit) }
     it { should validate_numericality_of(:projects_limit) }
     it { should allow_value(0).for(:projects_limit) }
@@ -108,7 +112,7 @@ describe User do
 
   describe 'authentication token' do
     it "should have authentication token" do
-      user = Factory(:user)
+      user = create(:user)
       user.authentication_token.should_not be_blank
     end
   end

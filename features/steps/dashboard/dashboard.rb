@@ -32,7 +32,7 @@ class Dashboard < Spinach::FeatureSteps
   end
 
   Given 'user with name "John Doe" joined project "Shop"' do
-    user = create :user, {name: "John Doe"}
+    user = create(:user, {name: "John Doe"})
     project = Project.find_by_name "Shop"
     Event.create(
       project: project,
@@ -65,9 +65,9 @@ class Dashboard < Spinach::FeatureSteps
   end
 
   And 'I have group with projects' do
-    @group   = create :group
-    @project = create :project, group: @group
-    @event   = create :closed_issue_event, project: @project
+    @group   = create(:group)
+    @project = create(:project, group: @group)
+    @event   = create(:closed_issue_event, project: @project)
 
     @project.add_access current_user, :admin
   end
@@ -103,4 +103,14 @@ class Dashboard < Spinach::FeatureSteps
       page.should have_link group.name
     end
   end
+
+  And 'group has a projects that does not belongs to me' do
+    @forbidden_project1 = create(:project, group: @group)
+    @forbidden_project2 = create(:project, group: @group)
+  end
+
+  Then 'I should see 1 project at group list' do
+    page.find('span.last_activity/span').should have_content('1')
+  end
+
 end

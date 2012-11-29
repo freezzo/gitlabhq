@@ -176,9 +176,17 @@ and ensure you have followed all of the above steps carefully.
 
     cd /home/gitlab/gitlab
 
-    sudo gem install charlock_holmes --version '0.6.8'
+    sudo gem install charlock_holmes --version '0.6.9'
     sudo gem install bundler
-    sudo -u gitlab -H bundle install --without development test sqlite postgres  --deployment
+    sudo -u gitlab -H bundle install --without development test postgres  --deployment
+
+#### Configure git client
+
+Gitlab needs to be able to commit and push changes to gitolite.
+Git requires a username and email in order to be able to do that.
+
+    sudo -u gitlab -H git config --global user.email "gitlab@localhost"
+    sudo -u gitlab -H git config --global user.name "Gitlab"
 
 #### Setup application
 
@@ -261,7 +269,7 @@ You can login via web using admin generated with setup:
 
 # Advanced setup tips:
 
-_Checkout databases.md for postgres or sqlite_
+_Checkout databases.md for PostgreSQL_
 
 ## Customizing Resque's Redis connection
 

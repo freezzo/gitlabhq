@@ -2,21 +2,20 @@
 #
 # Table name: projects
 #
-#  id                     :integer         not null, primary key
+#  id                     :integer          not null, primary key
 #  name                   :string(255)
 #  path                   :string(255)
 #  description            :text
-#  created_at             :datetime        not null
-#  updated_at             :datetime        not null
-#  private_flag           :boolean         default(TRUE), not null
-#  code                   :string(255)
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  private_flag           :boolean          default(TRUE), not null
 #  owner_id               :integer
 #  default_branch         :string(255)
-#  issues_enabled         :boolean         default(TRUE), not null
-#  wall_enabled           :boolean         default(TRUE), not null
-#  merge_requests_enabled :boolean         default(TRUE), not null
-#  wiki_enabled           :boolean         default(TRUE), not null
-#  group_id               :integer
+#  issues_enabled         :boolean          default(TRUE), not null
+#  wall_enabled           :boolean          default(TRUE), not null
+#  merge_requests_enabled :boolean          default(TRUE), not null
+#  wiki_enabled           :boolean          default(TRUE), not null
+#  namespace_id           :integer
 #
 
 require 'spec_helper'
@@ -24,6 +23,7 @@ require 'spec_helper'
 describe Project do
   describe "Associations" do
     it { should belong_to(:group) }
+    it { should belong_to(:namespace) }
     it { should belong_to(:owner).class_name('User') }
     it { should have_many(:users) }
     it { should have_many(:events).dependent(:destroy) }
@@ -40,6 +40,7 @@ describe Project do
   end
 
   describe "Mass assignment" do
+    it { should_not allow_mass_assignment_of(:namespace_id) }
     it { should_not allow_mass_assignment_of(:owner_id) }
     it { should_not allow_mass_assignment_of(:private_flag) }
   end
@@ -58,9 +59,6 @@ describe Project do
 
     it { should ensure_length_of(:description).is_within(0..2000) }
 
-    it { should validate_presence_of(:code) }
-    it { should validate_uniqueness_of(:code) }
-    it { should ensure_length_of(:code).is_within(1..255) }
     # TODO: Formats
 
     it { should validate_presence_of(:owner) }
@@ -151,24 +149,24 @@ describe Project do
   end
 
   it "returns the full web URL for this repo" do
-    project = Project.new(code: "somewhere")
+    project = Project.new(path: "somewhere")
     project.web_url.should == "#{Gitlab.config.url}/somewhere"
   end
 
   describe :valid_repo? do
     it "should be valid repo" do
-      project = Factory :project
+      project = create(:project)
       project.valid_repo?.should be_true
     end
 
     it "should be invalid repo" do
-      project = Project.new(name: "ok_name", path: "/INVALID_PATH/", code: "NEOK")
+      project = Project.new(name: "ok_name", path: "/INVALID_PATH/", path: "NEOK")
       project.valid_repo?.should be_false
     end
   end
 
   describe "last_activity methods" do
-    let(:project)    { Factory :project }
+    let(:project)    { create(:project) }
     let(:last_event) { double(created_at: Time.now) }
 
     describe "last_activity" do
@@ -191,7 +189,7 @@ describe Project do
   end
 
   describe "fresh commits" do
-    let(:project) { Factory :project }
+    let(:project) { create(:project) }
 
     it { project.fresh_commits(3).count.should == 3 }
     it { project.fresh_commits.first.id.should == "bcf03b5de6c33f3869ef70d68cf06e679d1d7f9a" }
@@ -199,7 +197,7 @@ describe Project do
   end
 
   describe "commits_between" do
-    let(:project) { Factory :project }
+    let(:project) { create(:project) }
 
     subject do
       commits = project.commits_between("3a4b4fb4cde7809f033822a171b9feae19d41fff",
@@ -213,7 +211,7 @@ describe Project do
   end
 
   describe "Git methods" do
-    let(:project) { Factory :project }
+    let(:project) { create(:project) }
 
     describe :repo do
       it "should return valid repo" do
@@ -270,14 +268,14 @@ describe Project do
   end
 
   describe :update_merge_requests do
-    let(:project) { Factory :project }
+    let(:project) { create(:project) }
 
     before do
-      @merge_request = Factory :merge_request,
-        project: project,
-        merged: false,
-        closed: false
-      @key = Factory :key, user_id: project.owner.id
+      @merge_request = create(:merge_request,
+                              project: project,
+                              merged: false,
+                              closed: false)
+      @key = create(:key, user_id: project.owner.id)
     end
 
     it "should close merge request if last commit from source branch was pushed to target branch" do

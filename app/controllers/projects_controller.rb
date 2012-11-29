@@ -21,9 +21,10 @@ class ProjectsController < ProjectResourceController
     @project = Project.create_by_user(params[:project], current_user)
 
     respond_to do |format|
+      flash[:notice] = 'Project was successfully created.' if @project.saved?
       format.html do
         if @project.saved?
-          redirect_to(@project, notice: 'Project was successfully created.')
+          redirect_to @project
         else
           render action: "new"
         end
@@ -33,8 +34,11 @@ class ProjectsController < ProjectResourceController
   end
 
   def update
+    status = ProjectUpdateContext.new(project, current_user, params).execute
+
     respond_to do |format|
-      if project.update_attributes(params[:project])
+      if status
+        flash[:notice] = 'Project was successfully updated.'
         format.html { redirect_to edit_project_path(project), notice: 'Project was successfully updated.' }
         format.js
       else
