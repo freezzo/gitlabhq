@@ -74,6 +74,8 @@ class Project < ActiveRecord::Base
   scope :without_user, ->(user)  { where("id NOT IN (:ids)", ids: user.projects.map(&:id) ) }
   scope :not_in_group, ->(group) { where("id NOT IN (:ids)", ids: group.project_ids ) }
   scope :sorted_by_activity, ->() { order("(SELECT max(events.created_at) FROM events WHERE events.project_id = projects.id) DESC") }
+  scope :personal, ->(user) { where(namespace_id: user.namespace_id) }
+  scope :joined, ->(user) { where("namespace_id != ?", user.namespace_id) }
 
   class << self
     def authorized_for user
@@ -289,5 +291,9 @@ class Project < ActiveRecord::Base
     when 'merge_request' then
       merge_requests
     end
+  end
+
+  def namespace_owner
+    namespace.try(:owner)
   end
 end
