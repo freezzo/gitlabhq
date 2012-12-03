@@ -153,5 +153,5 @@ end
 
 group :production do
   gem "mysql"
-  gem "gitlab_meta", '3.1'
+  gem "gitlab_meta", '4.0'
 end
