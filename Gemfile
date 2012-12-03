@@ -12,7 +12,6 @@ gem "rails", "3.2.9"
 
 # Supported DBs
 gem "mysql2", group: :mysql
-gem "pg", group: :postgres
 
 # Auth
 gem "devise", "~> 2.1.0"
